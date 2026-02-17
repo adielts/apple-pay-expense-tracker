@@ -129,15 +129,15 @@
 
 1. פתח **Shortcuts** (קיצורים)
 2. לחץ על לשונית **Automation** (אוטומציה) בתחתית
-3. לחץ **+** → גלול ובחר **Transaction** (עסקה)
-4. **אל תסנן כרטיס ספציפי** — השאר "Any Card" (כל כרטיס)
+3. לחץ **+** → בקטגוריה **Wallet** בחר **When I Tap** (כשאני מגהץ)
+4. בחר **Any Card** (כל כרטיס) — כך כל הכרטיסים יתועדו
 5. בחר **Run Immediately** (הפעל מיד)
 6. כבה את **Notify When Run** (נשלח notification משלנו)
 7. לחץ **Next** (הבא)
 
 ### 3.2 איך מגיעים לנתוני העסקה מהטריגר
 
-כש-Transaction trigger מופעל, הוא מעביר **Shortcut Input** עם השדות הבאים:
+כשהטריגר **When I Tap** מופעל, הוא מעביר **Shortcut Input** עם השדות הבאים:
 - **Amount** — סכום העסקה (מספר)
 - **Merchant** — שם העסק (טקסט)
 - **Currency Code** — מטבע (למשל ILS)
@@ -469,6 +469,9 @@
 📲 גיהוץ Apple Pay
      │
      ▼
+📲 גיהוץ Apple Pay (טריגר When I Tap)
+     │
+     ▼
 1-2.  Format Date → Set Variable (todayDate)
 3-4.  Format Date → Set Variable (currentTime)
 5.    Set Variable (transactionAmount ← Shortcut Input > Amount)
@@ -798,10 +801,11 @@
 
 ## 🔧 פתרון בעיות
 
-### Transaction Trigger לא מופיע
+### When I Tap לא מופיע
 - וודא iOS 26
 - עדכן Shortcuts
 - בדוק: הגדרות → Wallet & Apple Pay
+- הטריגר נמצא בקטגוריה **Wallet** במסך האוטומציות
 
 ### Shortcut Input לא מציג Amount/Merchant
 - לחץ על שדה Value ב-Set Variable
@@ -844,7 +848,7 @@
 ```
 📱 iPhone
 ├─ 🔧 Shortcuts
-│   ├─ ⚡ Automation: Transaction → תעד עסקה (32 פעולות)
+│   ├─ ⚡ Automation: When I Tap → תעד עסקה (32 פעולות)
 │   ├─ 📊 Shortcut: הוצאות שלי (צפייה + הוספה ידנית)
 │   └─ 🗑️ Shortcut: אפס חודש (גיבוי + איפוס)
 │
