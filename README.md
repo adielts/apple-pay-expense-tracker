@@ -578,10 +578,14 @@
    - **Text** → לחץ על השדה → בחר משתנה **`txDate`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי begins with)*
    - **Set Variable** → `txDateText`
    - **If** → `txDateText` → **begins with** → `currentYearMonth`
-     - **Get Dictionary Value** → Repeat Item → Key: `merchant` → **Set Variable** → `txMerchant`
-     - **Get Dictionary Value** → Repeat Item → Key: `amount` → **Set Variable** → `txAmount`
-     - **Get Dictionary Value** → Repeat Item → Key: `category` → **Set Variable** → `txCategory`
-     - **Get Dictionary Value** → Repeat Item → Key: `card` → **Set Variable** → `txCard`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant`
+     - **Set Variable** → Variable Name: `txMerchant` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount`
+     - **Set Variable** → Variable Name: `txAmount` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category`
+     - **Set Variable** → Variable Name: `txCategory` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
+     - **Set Variable** → Variable Name: `txCard` → Value: תוצאת Get Dictionary Value
      - **Text**: `[txDate] | [txMerchant] | ₪[txAmount] | [txCategory] | ****[txCard]`
        (לחץ ובחר משתנים בכל `[xxx]`)
    - **End If**
@@ -595,7 +599,7 @@
 [Repeat Results]
 ```
 
-10. **Show Result** → Input: הטקסט מלמעלה
+10. **Quick Look** → לחץ על שדה Input → בחר את ה-**Text** מהפעולה הקודמת (מופיע בשורת המשתנים מעל המקלדת)
 
 ---
 
@@ -604,11 +608,16 @@
 1. **Repeat with Each** → Input: `allTransactions`
 
    **בתוך ה-Repeat:**
-   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date` → **Set Variable** → `txDate`
-   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant` → **Set Variable** → `txMerchant`
-   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount` → **Set Variable** → `txAmount`
-   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category` → **Set Variable** → `txCategory`
-   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card` → **Set Variable** → `txCard`
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date`
+   - **Set Variable** → Variable Name: `txDate` → Value: תוצאת Get Dictionary Value
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant`
+   - **Set Variable** → Variable Name: `txMerchant` → Value: תוצאת Get Dictionary Value
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount`
+   - **Set Variable** → Variable Name: `txAmount` → Value: תוצאת Get Dictionary Value
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category`
+   - **Set Variable** → Variable Name: `txCategory` → Value: תוצאת Get Dictionary Value
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
+   - **Set Variable** → Variable Name: `txCard` → Value: תוצאת Get Dictionary Value
    - **Text**:
      ```
      [txDate] | [txMerchant] | ₪[txAmount] | [txCategory] | ****[txCard]
@@ -616,7 +625,7 @@
      *(לחץ ובחר משתנים בכל `[xxx]`)*
 
 2. **End Repeat**
-3. **Show Result** → Input: **Repeat Results**
+3. **Quick Look** → לחץ על שדה Input → בחר **Repeat Results** (מופיע בשורת המשתנים מעל המקלדת)
 
 ---
 
@@ -638,11 +647,16 @@
    - **If** → `txCategoryText` → **is** → `chosenCategory`
 
      **בתוך ה-If (אם התנאי מתקיים):**
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date` → **Set Variable** → `txDate`
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant` → **Set Variable** → `txMerchant`
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount` → **Set Variable** → `txAmount`
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card` → **Set Variable** → `txCard`
-     - **Calculate** → `catTotal` **+** `txAmount` → **Set Variable** → `catTotal`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date`
+     - **Set Variable** → Variable Name: `txDate` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant`
+     - **Set Variable** → Variable Name: `txMerchant` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount`
+     - **Set Variable** → Variable Name: `txAmount` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
+     - **Set Variable** → Variable Name: `txCard` → Value: תוצאת Get Dictionary Value
+     - **Calculate** → Input: `catTotal` → Operation: **+** → Operand: `txAmount`
+     - **Set Variable** → Variable Name: `catTotal` → Value: תוצאת Calculate
      - **Text**:
        ```
        [txDate] | [txMerchant] | ₪[txAmount] | ****[txCard]
@@ -663,7 +677,7 @@
 ```
 *(לחץ ובחר משתנים בכל `[xxx]`)*
 
-9. **Show Result** → Input: הטקסט מלמעלה
+9. **Quick Look** → לחץ על שדה Input → בחר את ה-**Text** מהפעולה הקודמת (מופיע בשורת המשתנים מעל המקלדת)
 
 ---
 
@@ -693,11 +707,16 @@
    - **If** → `txCardText` → **is** → `chosenCard`
 
      **בתוך ה-If (אם התנאי מתקיים):**
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date` → **Set Variable** → `txDate`
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant` → **Set Variable** → `txMerchant`
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount` → **Set Variable** → `txAmount`
-     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category` → **Set Variable** → `txCategory`
-     - **Calculate** → `cardTotal` **+** `txAmount` → **Set Variable** → `cardTotal`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date`
+     - **Set Variable** → Variable Name: `txDate` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant`
+     - **Set Variable** → Variable Name: `txMerchant` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount`
+     - **Set Variable** → Variable Name: `txAmount` → Value: תוצאת Get Dictionary Value
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category`
+     - **Set Variable** → Variable Name: `txCategory` → Value: תוצאת Get Dictionary Value
+     - **Calculate** → Input: `cardTotal` → Operation: **+** → Operand: `txAmount`
+     - **Set Variable** → Variable Name: `cardTotal` → Value: תוצאת Calculate
      - **Text**:
        ```
        [txDate] | [txMerchant] | ₪[txAmount] | [txCategory]
@@ -718,7 +737,7 @@
 ```
 *(לחץ ובחר משתנים בכל `[xxx]`)*
 
-9. **Show Result** → Input: הטקסט מלמעלה
+9. **Quick Look** → לחץ על שדה Input → בחר את ה-**Text** מהפעולה הקודמת (מופיע בשורת המשתנים מעל המקלדת)
 
 ---
 
@@ -741,13 +760,15 @@
 9. **Ask for Input** → `💳 כרטיס (4 ספרות) או "מזומן"` → Text → Default: `מזומן`
 10. **Set Variable** → `manualCard`
 
-11. **Format Date** → Current Date → `yyyy-MM-dd` → **Set Variable** `manualDate`
-12. **Format Date** → Current Date → `HH:mm` → **Set Variable** `manualTime`
+11. **Format Date** → Date: **Current Date** → Date Format: **Custom** → Format String: `yyyy-MM-dd`
+12. **Set Variable** → Variable Name: `manualDate` → Value: תוצאת Format Date
+13. **Format Date** → Date: **Current Date** → Date Format: **Custom** → Format String: `HH:mm`
+14. **Set Variable** → Variable Name: `manualTime` → Value: תוצאת Format Date
 
-13. **Dictionary** → 6 שדות (date, time, merchant, amount, category, card) עם המשתנים manual
-14. **Set Variable** → `newTransaction`
+15. **Dictionary** → 6 שדות (date, time, merchant, amount, category, card) עם המשתנים manual
+16. **Set Variable** → Variable Name: `newTransaction` → Value: תוצאת Dictionary
 
-15-22. (זהה לפעולות 23-32 מ-Shortcut "תעד עסקה"):
+17-24. (זהה לפעולות 23-32 מ-Shortcut "תעד עסקה"):
 - Data Jar: Add to List → Get monthlyTotal → Calculate → Set monthlyTotal → Get expenses → Scriptable: Sync → Notification
 
 ---
@@ -790,30 +811,31 @@
 1. **Show Alert** → Title: `⚠️ אישור` → Message: `האם לגבות ולאפס את נתוני החודש?` → Show Cancel: **ON**
 
 2. **Scriptable** → **Run Script** → Script: **ExpenseExportCSV**
-3. **Set Variable** → `exportResult`
+3. **Set Variable** → Variable Name: `exportResult` → Value: תוצאת Run Script
 
 4. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `status`
-5. **Set Variable** → `exportStatus`
-5b. **Text** → הכנס `exportStatus` → **Set Variable** → `exportStatusText`
+5. **Set Variable** → Variable Name: `exportStatus` → Value: תוצאת Get Dictionary Value
+6. **Text** → לחץ על השדה → בחר משתנה **`exportStatus`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי is)*
+7. **Set Variable** → Variable Name: `exportStatusText` → Value: תוצאת Text
 
-6. **If** → `exportStatusText` **is** `OK`:
+8. **If** → `exportStatusText` **is** `OK`:
 
-   7. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
+   9. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
 
    > **הערה:** העסקאות **לא נמחקות** — רק ה-monthlyTotal מתאפס, ההיסטוריה נשמרת.
 
-   8. **Get Dictionary Value** → `exportResult` → Key: `count`
-   9. **Set Variable** → `exportCount`
-   10. **Get Dictionary Value** → `exportResult` → Key: `total`
-   11. **Set Variable** → `exportTotal`
+   10. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `count`
+   11. **Set Variable** → Variable Name: `exportCount` → Value: תוצאת Get Dictionary Value
+   12. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `total`
+   13. **Set Variable** → Variable Name: `exportTotal` → Value: תוצאת Get Dictionary Value
 
-   12. **Data Jar** → **Get Value** → Key: `expenses`
-   13. **Set Variable** → `allExpenses`
-   14. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `allExpenses` (עדכון Widget)
+   14. **Data Jar** → **Get Value** → Key: `expenses`
+   15. **Set Variable** → Variable Name: `allExpenses` → Value: תוצאת Get Value
+   16. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `allExpenses` (עדכון Widget)
 
-   15. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: `[exportCount] עסקאות | ₪[exportTotal]`
+   17. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: `[exportCount] עסקאות | ₪[exportTotal]`
 
-16. **End If**
+18. **End If**
 
 ---
 
