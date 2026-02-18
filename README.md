@@ -575,7 +575,9 @@
    **בתוך ה-Repeat:**
    - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date`
    - **Set Variable** → `txDate`
-   - **If** → `txDate` → **begins with** → `currentYearMonth`
+   - **Text** → לחץ על השדה → בחר משתנה **`txDate`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי begins with)*
+   - **Set Variable** → `txDateText`
+   - **If** → `txDateText` → **begins with** → `currentYearMonth`
      - **Get Dictionary Value** → Repeat Item → Key: `merchant` → **Set Variable** → `txMerchant`
      - **Get Dictionary Value** → Repeat Item → Key: `amount` → **Set Variable** → `txAmount`
      - **Get Dictionary Value** → Repeat Item → Key: `category` → **Set Variable** → `txCategory`
@@ -602,8 +604,16 @@
 1. **Repeat with Each** → Input: `allTransactions`
 
    **בתוך ה-Repeat:**
-   - חלץ כל שדה עם **Get Dictionary Value** + **Set Variable**
-   - **Text**: `[date] | [merchant] | ₪[amount] | [category] | ****[card]`
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date` → **Set Variable** → `txDate`
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant` → **Set Variable** → `txMerchant`
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount` → **Set Variable** → `txAmount`
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category` → **Set Variable** → `txCategory`
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card` → **Set Variable** → `txCard`
+   - **Text**:
+     ```
+     [txDate] | [txMerchant] | ₪[txAmount] | [txCategory] | ****[txCard]
+     ```
+     *(לחץ ובחר משתנים בכל `[xxx]`)*
 
 2. **End Repeat**
 3. **Show Result** → Input: **Repeat Results**
@@ -618,31 +628,97 @@
 4. **Set Variable** → `chosenCategory`
 
 5. **Set Variable** → `catTotal` → Value: `0`
-6. **Repeat with Each** → `allTransactions`
-   - Get Dictionary Value → Key: `category` → Set Variable → `txCategory`
-   - **If** `txCategory` **is** `chosenCategory`:
-     - חלץ שדות + Text
-     - Get `amount` → Calculate: `catTotal` + `txAmount` → Set Variable `catTotal`
-   - End If
+6. **Repeat with Each** → Input: `allTransactions`
+
+   **בתוך ה-Repeat:**
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category`
+   - **Set Variable** → `txCategory`
+   - **Text** → לחץ על השדה → בחר משתנה **`txCategory`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי is)*
+   - **Set Variable** → `txCategoryText`
+   - **If** → `txCategoryText` → **is** → `chosenCategory`
+
+     **בתוך ה-If (אם התנאי מתקיים):**
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date` → **Set Variable** → `txDate`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant` → **Set Variable** → `txMerchant`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount` → **Set Variable** → `txAmount`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card` → **Set Variable** → `txCard`
+     - **Calculate** → `catTotal` **+** `txAmount` → **Set Variable** → `catTotal`
+     - **Text**:
+       ```
+       [txDate] | [txMerchant] | ₪[txAmount] | ****[txCard]
+       ```
+       *(לחץ ובחר משתנים בכל `[xxx]`)*
+
+   - **End If**
+
 7. **End Repeat**
-8. **Text**: header + Repeat Results + `💰 סה"כ: ₪[catTotal]`
-9. **Show Result**
+
+8. **Text** → הרכב:
+```
+📂 [chosenCategory]
+═══════════════════════════
+[Repeat Results]
+
+💰 סה"כ בקטגוריה: ₪[catTotal]
+```
+*(לחץ ובחר משתנים בכל `[xxx]`)*
+
+9. **Show Result** → Input: הטקסט מלמעלה
 
 ---
 
 ### ↪️ ענף: 💳 לפי כרטיס
 
-1. **Repeat with Each** (pass 1) → `allTransactions`
-   - Get Dictionary Value → Key: `card`
+> **שלב 1: חלץ רשימת כרטיסים ייחודיים**
+
+1. **Repeat with Each** (pass 1) → Input: `allTransactions`
+
+   **בתוך ה-Repeat:**
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
+
 2. **End Repeat**
-3. **Choose from List** → List: Repeat Results → Prompt: `💳 בחר כרטיס`
+3. **Choose from List** → List: **Repeat Results** → Prompt: `💳 בחר כרטיס`
 4. **Set Variable** → `chosenCard`
 
-5. **Repeat with Each** (pass 2) → `allTransactions`
-   - Get Dictionary Value → Key: `card` → Set Variable → `txCard`
-   - **If** `txCard` **is** `chosenCard`: חלץ + Text
-6. **End Repeat**
-7. **Show Result**
+> **שלב 2: סנן עסקאות לפי הכרטיס שנבחר**
+
+5. **Set Variable** → `cardTotal` → Value: `0`
+6. **Repeat with Each** (pass 2) → Input: `allTransactions`
+
+   **בתוך ה-Repeat:**
+   - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
+   - **Set Variable** → `txCard`
+   - **Text** → לחץ על השדה → בחר משתנה **`txCard`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי is)*
+   - **Set Variable** → `txCardText`
+   - **If** → `txCardText` → **is** → `chosenCard`
+
+     **בתוך ה-If (אם התנאי מתקיים):**
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date` → **Set Variable** → `txDate`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant` → **Set Variable** → `txMerchant`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount` → **Set Variable** → `txAmount`
+     - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category` → **Set Variable** → `txCategory`
+     - **Calculate** → `cardTotal` **+** `txAmount` → **Set Variable** → `cardTotal`
+     - **Text**:
+       ```
+       [txDate] | [txMerchant] | ₪[txAmount] | [txCategory]
+       ```
+       *(לחץ ובחר משתנים בכל `[xxx]`)*
+
+   - **End If**
+
+7. **End Repeat**
+
+8. **Text** → הרכב:
+```
+💳 כרטיס ****[chosenCard]
+═══════════════════════════
+[Repeat Results]
+
+💰 סה"כ בכרטיס: ₪[cardTotal]
+```
+*(לחץ ובחר משתנים בכל `[xxx]`)*
+
+9. **Show Result** → Input: הטקסט מלמעלה
 
 ---
 
@@ -718,8 +794,9 @@
 
 4. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `status`
 5. **Set Variable** → `exportStatus`
+5b. **Text** → הכנס `exportStatus` → **Set Variable** → `exportStatusText`
 
-6. **If** → `exportStatus` **is** `OK`:
+6. **If** → `exportStatusText` **is** `OK`:
 
    7. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
 
@@ -826,6 +903,13 @@
 ### Notification לא מופיע
 - הגדרות → Notifications → Shortcuts → Allow Notifications: **ON**
 - וודא ש-Focus Mode לא חוסם
+
+### If מציג רק "has any value" במקום begins with / contains
+- זה קורה כש-Input מגיע ישירות מ-Get Dictionary Value
+- **פתרון**: עטוף במעבר דרך Text:
+  1. **Text** → הכנס את המשתנה (למשל `txDate`)
+  2. **Set Variable** → שם חדש (למשל `txDateText`)
+  3. **If** `txDateText` → עכשיו יופיעו כל התנאים (begins with, contains, is, ends with)
 
 ### עסק לא "נלמד" אוטומטית
 - בדוק ב-Data Jar → `merchantMap` → האם שם העסק שם
