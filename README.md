@@ -636,8 +636,9 @@
 3. **Choose from List** → List: `categoryList` → Prompt: `📂 בחר קטגוריה`
 4. **Set Variable** → `chosenCategory`
 
-5. **Set Variable** → `catTotal` → Value: `0`
-6. **Repeat with Each** → Input: `allTransactions`
+5. **Number** → הקלד `0`
+6. **Set Variable** → Variable Name: `catTotal` → Value: תוצאת Number
+7. **Repeat with Each** → Input: `allTransactions`
 
    **בתוך ה-Repeat:**
    - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category`
@@ -696,8 +697,9 @@
 
 > **שלב 2: סנן עסקאות לפי הכרטיס שנבחר**
 
-5. **Set Variable** → `cardTotal` → Value: `0`
-6. **Repeat with Each** (pass 2) → Input: `allTransactions`
+5. **Number** → הקלד `0`
+6. **Set Variable** → Variable Name: `cardTotal` → Value: תוצאת Number
+7. **Repeat with Each** (pass 2) → Input: `allTransactions`
 
    **בתוך ה-Repeat:**
    - **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
