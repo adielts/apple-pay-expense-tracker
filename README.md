@@ -845,11 +845,16 @@
 
 1. **Show Alert** → Title: `⚠️ אזהרה` → Message: `פעולה זו תמחק את כל הנתונים. בלתי הפיכה!` → Show Cancel: **ON**
 
-2. **Data Jar** → **Set Value** → Key: `expenses/transactions` → Empty List
-3. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → `0`
-4. **Data Jar** → **Set Value** → Key: `merchantMap` → Empty Dictionary
+2. **List** → חפש והוסף פעולת **List** — **אל תוסיף פריטים**, השאר ריק
+3. **Data Jar** → **Set Value** → Key Path: `expenses/transactions` → Value: לחץ → בחר את **List** (התוצאה מפעולה 2)
 
-5. **Show Notification** → Title: `🗑️ כל הנתונים נמחקו`
+4. **Number** → הקלד `0`
+5. **Data Jar** → **Set Value** → Key Path: `expenses/monthlyTotal` → Value: לחץ → בחר את **Number** (התוצאה מפעולה 4)
+
+6. **Dictionary** → חפש והוסף פעולת **Dictionary** — **אל תוסיף שדות**, השאר ריק
+7. **Data Jar** → **Set Value** → Key Path: `merchantMap` → Value: לחץ → בחר את **Dictionary** (התוצאה מפעולה 6)
+
+8. **Show Notification** → Title: `🗑️ כל הנתונים נמחקו`
 
 ---
 
