@@ -29,28 +29,7 @@ const CONFIG = {
 
 // ─── קריאת נתונים מ-Data Jar ──────────────────────────────
 async function loadExpensesFromDataJar() {
-  // Data Jar חושף נתונים דרך URL callback
-  const baseURL = "datajar:///get?key=";
-
-  try {
-    // קריאת עסקאות
-    const transactionsReq = new Request(baseURL + "expenses/transactions");
-    // ב-Scriptable, נשתמש ב-Data Jar Bookmarks
-    // גישה חלופית: קריאה ישירה מ-Data Jar
-
-    // ── שיטת קריאה מ-Data Jar באמצעות Bookmarks ──
-    const fm = FileManager.iCloud();
-    const bookmarkPath = fm.bookmarkedPath("DataJarExport");
-
-    if (bookmarkPath && fm.fileExists(bookmarkPath)) {
-      const raw = fm.readString(bookmarkPath);
-      return JSON.parse(raw);
-    }
-  } catch (e) {
-    console.error("Error loading from Data Jar bookmark: " + e);
-  }
-
-  // ── Fallback: קריאה מקובץ JSON משותף ──
+  // ── קריאה מקובץ JSON שנוצר על ידי ExpenseSync ──
   try {
     const fm = FileManager.iCloud();
     const dir = fm.documentsDirectory();
@@ -68,7 +47,7 @@ async function loadExpensesFromDataJar() {
       return JSON.parse(raw);
     }
   } catch (e) {
-    console.error("Error loading from file: " + e);
+    console.error("Error loading expenses: " + e);
   }
 
   // החזרת מבנה ריק אם אין נתונים
