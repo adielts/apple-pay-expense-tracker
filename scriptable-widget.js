@@ -72,14 +72,16 @@ function filterCurrentMonth(transactions) {
 }
 
 // ─── חישוב סטטיסטיקות ─────────────────────────────────────
-function calculateStats(transactions) {
+function calculateStats(transactions, data) {
   const monthlyTransactions = filterCurrentMonth(transactions);
 
-  // סה"כ החודש
-  const totalSpent = monthlyTransactions.reduce(
-    (sum, t) => sum + (parseFloat(t.amount) || 0),
-    0
-  );
+  // סה"כ החודש — מחשב מעסקאות, או fallback ל-monthlyTotal
+  const totalSpent = monthlyTransactions.length > 0
+    ? monthlyTransactions.reduce(
+        (sum, t) => sum + (parseFloat(t.amount) || 0),
+        0
+      )
+    : (parseFloat(data.monthlyTotal) || 0);
 
   // פירוט לפי קטגוריה
   const byCategory = {};
@@ -544,7 +546,7 @@ function createLargeWidget(stats, transactions) {
 async function main() {
   const data = await loadExpensesFromDataJar();
   const transactions = data.transactions || [];
-  const stats = calculateStats(transactions);
+  const stats = calculateStats(transactions, data);
 
   let widget;
   const widgetFamily =

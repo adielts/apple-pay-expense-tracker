@@ -1,12 +1,18 @@
 // ============================================================
 // 💾 Data Sync Helper - Scriptable Script
 // ============================================================
-// סקריפט עזר שמופעל מתוך Shortcut בלבד!
-// מקבל את נתוני expenses מה-Shortcut וכותב לקובץ JSON
-// שה-Widget יכול לקרוא.
+// מקבל עסקה בודדת מה-Shortcut ומצרף אותה לקובץ expenses.json
 // 
-// ⚠️ אי אפשר להריץ ישירות מ-Scriptable — חייב להפעיל
-// מתוך Shortcut שמעביר את הנתונים מ-Data Jar.
+// מה ה-Shortcut צריך לשלוח (ב-Texts):
+//   שורה בפורמט: date|time|merchant|amount|category|card|monthlyTotal
+//   לדוגמה:  2026-02-25|10:30|CAFE AROMA|50|🍔 מזון|1234|170
+//
+//   לסנכרון סה"כ בלבד:  SYNC|170
+//   לאיפוס חודשי:        RESET|0
+//
+// למה טקסט ולא Dictionary?
+//   כי Shortcuts לא מעביר מבנים מורכבים (List of Dicts) ל-Scriptable בצורה תקינה.
+//   טקסט פשוט תמיד עובד.
 // ============================================================
 
 async function syncData() {
@@ -14,72 +20,107 @@ async function syncData() {
   const dir = fm.documentsDirectory();
   const trackerDir = fm.joinPath(dir, "ExpenseTracker");
 
-  // וודא שהתיקייה קיימת
   if (!fm.fileExists(trackerDir)) {
     fm.createDirectory(trackerDir, true);
   }
 
   const filePath = fm.joinPath(trackerDir, "expenses.json");
 
-  // קבלת נתונים מ-Shortcut דרך פרמטר
-  let inputData;
-
-  if (args.shortcutParameter) {
-    inputData = args.shortcutParameter;
-  } else if (args.plainTexts && args.plainTexts.length > 0) {
-    try {
-      inputData = JSON.parse(args.plainTexts[0]);
-    } catch (e) {
-      // אולי זה כבר אובייקט
-      inputData = args.plainTexts[0];
-    }
-  } else if (args.queryParameters && args.queryParameters.data) {
-    try {
-      inputData = JSON.parse(args.queryParameters.data);
-    } catch (e) {
-      inputData = args.queryParameters.data;
-    }
-  }
-
-  if (inputData) {
-    // כתיבת נתונים לקובץ
-    const jsonString = JSON.stringify(inputData, null, 2);
-    fm.writeString(filePath, jsonString);
-    
-    // ספירת עסקאות לאישור
-    let count = 0;
-    try {
-      const parsed = typeof inputData === "string" ? JSON.parse(inputData) : inputData;
-      count = (parsed.transactions || []).length;
-    } catch (e) {}
-    
-    return "✅ סנכרון הצליח! " + count + " עסקאות נכתבו לקובץ.";
-  }
-
-  // אין input — הופעל ישירות מ-Scriptable
+  // קריאת נתונים קיימים
+  let data = { transactions: [], monthlyTotal: 0, lastReset: "" };
   if (fm.fileExists(filePath)) {
-    await fm.downloadFileFromiCloud(filePath);
-    const raw = fm.readString(filePath);
-    let count = 0;
     try {
-      count = (JSON.parse(raw).transactions || []).length;
-    } catch (e) {}
-    return "ℹ️ קובץ קיים עם " + count + " עסקאות. לעדכון — הפעל דרך Shortcut 'הוצאות שלי' → '🔄 סנכרון Widget'.";
+      await fm.downloadFileFromiCloud(filePath);
+      const raw = fm.readString(filePath);
+      if (raw) {
+        data = JSON.parse(raw);
+        if (!data.transactions) data.transactions = [];
+      }
+    } catch (e) {
+      console.log("Could not read existing file: " + e);
+    }
   }
 
-  return "⚠️ אין נתונים. הפעל את Shortcut 'הוצאות שלי' → '🔄 סנכרון Widget' כדי לסנכרן מ-Data Jar.";
+  // קבלת Input מ-Shortcut
+  let input = null;
+  if (args.plainTexts && args.plainTexts.length > 0) {
+    input = args.plainTexts[0];
+  } else if (args.shortcutParameter) {
+    input = String(args.shortcutParameter);
+  }
+
+  if (!input || input.trim() === "") {
+    // הופעל ללא input — הצג סטטוס
+    const msg = "ℹ️ " + data.transactions.length + " עסקאות | ₪" + (data.monthlyTotal || 0) + "\n\nלסנכרון: הפעל דרך Shortcut.";
+    if (!config.runsInWidget) {
+      const a = new Alert();
+      a.title = "ExpenseSync";
+      a.message = msg;
+      a.addAction("OK");
+      await a.present();
+    }
+    Script.setShortcutOutput(msg);
+    Script.complete();
+    return;
+  }
+
+  // פענוח הקלט — פורמט: date|time|merchant|amount|category|card|monthlyTotal
+  // או: RESET|monthlyTotal  (לאיפוס)
+  // או: SYNC|monthlyTotal   (סנכרון סה"כ בלבד)
+  const parts = input.split("|");
+
+  if (parts[0] === "RESET") {
+    // איפוס — רק מעדכן monthlyTotal
+    data.monthlyTotal = parseFloat(parts[1]) || 0;
+    fm.writeString(filePath, JSON.stringify(data, null, 2));
+    Script.setShortcutOutput("✅ Total reset to ₪" + data.monthlyTotal);
+    Script.complete();
+    return;
+  }
+
+  if (parts[0] === "SYNC") {
+    // סנכרון — עדכון monthlyTotal ללא הוספת עסקה
+    data.monthlyTotal = parseFloat(parts[1]) || 0;
+    fm.writeString(filePath, JSON.stringify(data, null, 2));
+    Script.setShortcutOutput("✅ Synced | ₪" + data.monthlyTotal + " | " + data.transactions.length + " עסקאות");
+    Script.complete();
+    return;
+  }
+
+  if (parts.length >= 6) {
+    // עסקה חדשה
+    const newTx = {
+      date: parts[0].trim(),
+      time: parts[1].trim(),
+      merchant: parts[2].trim(),
+      amount: parseFloat(parts[3]) || 0,
+      category: parts[4].trim(),
+      card: parts[5].trim()
+    };
+
+    data.transactions.push(newTx);
+
+    // עדכון monthlyTotal
+    if (parts.length >= 7 && parts[6].trim() !== "") {
+      data.monthlyTotal = parseFloat(parts[6]) || 0;
+    } else {
+      data.monthlyTotal = (data.monthlyTotal || 0) + newTx.amount;
+    }
+
+    data.lastReset = data.lastReset || new Date().toISOString().split("T")[0];
+
+    // כתיבה
+    fm.writeString(filePath, JSON.stringify(data, null, 2));
+
+    const result = "✅ " + newTx.merchant + " | ₪" + newTx.amount + " | סה\"כ: ₪" + data.monthlyTotal + " | " + data.transactions.length + " עסקאות";
+    Script.setShortcutOutput(result);
+    Script.complete();
+    return;
+  }
+
+  // Input לא מוכר
+  Script.setShortcutOutput("⚠️ פורמט לא תקין. נדרש: date|time|merchant|amount|category|card|total");
+  Script.complete();
 }
 
-const result = await syncData();
-
-// הצגת הודעה למשתמש אם הופעל מתוך Scriptable ישירות
-if (!config.runsInWidget && !args.shortcutParameter) {
-  const alert = new Alert();
-  alert.title = "ExpenseSync";
-  alert.message = result;
-  alert.addAction("OK");
-  await alert.present();
-}
-
-Script.setShortcutOutput(result);
-Script.complete();
+await syncData();

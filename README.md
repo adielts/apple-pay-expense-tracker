@@ -462,11 +462,34 @@
 
 ---
 
-#### פעולה 29: `Get Value` (Data Jar) — טעינת כל הנתונים
+#### פעולה 29: `Text` — בניית שורת סנכרון
 
-**Data Jar** → **Get Value**
+> ⚠️ **חשוב מאוד:** הפורמט חייב להיות בדיוק כמו כאן — 7 שדות מופרדים ב-`|` (קו אנכי)
 
-- **Key Path**: `expenses`
+חפש והוסף: **Text**
+
+לחץ על שדה הטקסט, והרכב את השורה הבאה ע"י בחירת משתנים מהרשימה:
+
+```
+[todayDate]|[currentTime]|[merchantName]|[transactionAmount]|[selectedCategory]|[cardNumber]|[newTotal]
+```
+
+**כיצד להרכיב:**
+1. לחץ → בחר משתנה **`todayDate`**
+2. הקלד **`|`** (ללא רווחים!)
+3. לחץ → בחר משתנה **`currentTime`**
+4. הקלד **`|`**
+5. לחץ → בחר משתנה **`merchantName`**
+6. הקלד **`|`**
+7. לחץ → בחר משתנה **`transactionAmount`**
+8. הקלד **`|`**
+9. לחץ → בחר משתנה **`selectedCategory`**
+10. הקלד **`|`**
+11. לחץ → בחר משתנה **`cardNumber`**
+12. הקלד **`|`**
+13. לחץ → בחר משתנה **`newTotal`**
+
+**דוגמה לתוצאה:** `2026-02-25|10:30|CAFE AROMA|50|🍔 מזון|1234|170`
 
 ---
 
@@ -474,8 +497,8 @@
 
 **Set Variable**
 
-- **Variable Name**: `allExpenses`
-- **Value**: תוצאת **Get Value** (פעולה 29)
+- **Variable Name**: `syncText`
+- **Value**: תוצאת **Text** (פעולה 29)
 
 ---
 
@@ -484,7 +507,9 @@
 חפש: **Scriptable** → **Run Script**
 
 - **Script**: בחר **`ExpenseSync`**
-- **Texts**: לחץ → בחר משתנה **`allExpenses`**
+- **Texts**: לחץ → בחר משתנה **`syncText`**
+
+> 💡 **למה טקסט ולא Dictionary?** — Shortcuts לא מעביר רשימות מורכבות (List of Dicts) ל-Scriptable. טקסט פשוט תמיד עובד.
 
 ---
 
@@ -542,8 +567,9 @@
 23.    Data Jar: Add to expenses/transactions
 24-27. Get monthlyTotal → Calculate + amount → Set Variable (newTotal)
 28.    Data Jar: Set monthlyTotal
-29-30. Get expenses → Set Variable (allExpenses)
-31.    Scriptable: Run ExpenseSync
+29.    Text: [todayDate]|[currentTime]|...|[newTotal]
+30.    Set Variable (syncText)
+31.    Scriptable: Run ExpenseSync (syncText)
 32.    📲 Show Notification
 ```
 
@@ -812,7 +838,7 @@
 16. **Set Variable** → Variable Name: `newTransaction` → Value: תוצאת Dictionary
 
 17-24. (זהה לפעולות 23-32 מ-Shortcut "תעד עסקה"):
-- Data Jar: Add to List → Get monthlyTotal → Calculate → Set monthlyTotal → Get expenses → Scriptable: Sync → Notification
+- Data Jar: Add to List → Get monthlyTotal → Calculate → Set monthlyTotal → Text (syncText) → Scriptable: Sync → Notification
 
 ---
 
@@ -820,11 +846,15 @@
 
 > מעדכן את קובץ ה-JSON שה-Widget קורא ממנו. **הכרחי** אחרי הוספה ידנית ל-Data Jar, או אם ה-Widget לא מציג נתונים.
 
-1. **Data Jar** → **Get Value** → Key Path: `expenses`
-2. **Set Variable** → Variable Name: `allExpenses` → Value: תוצאת Get Value
-3. **Scriptable** → **Run Script** → Script: **ExpenseSync**
-   - לחץ על **Texts** → בחר משתנה **`allExpenses`**
-4. **Show Notification** → Title: `✅ Widget עודכן` → Body: `הנתונים סונכרנו ל-Widget`
+> ⚠️ **הערה:** סנכרון זה מעביר רק את ה-`monthlyTotal`, לא את רשימת העסקאות. עסקאות נכתבות אוטומטית ע"י ה-Shortcut הראשי (תעד עסקה).
+
+1. **Data Jar** → **Get Value** → Key Path: `expenses/monthlyTotal`
+2. **Set Variable** → Variable Name: `currentTotal` → Value: תוצאת Get Value
+3. **Text** → הרכב: `SYNC|` → [משתנה **`currentTotal`**]
+4. **Set Variable** → Variable Name: `syncText` → Value: תוצאת Text
+5. **Scriptable** → **Run Script** → Script: **ExpenseSync**
+   - לחץ על **Texts** → בחר משתנה **`syncText`**
+6. **Show Notification** → Title: `✅ Widget עודכן` → Body: `סה"כ: ₪` → [משתנה **`currentTotal`**]
 
 ---
 
@@ -884,9 +914,9 @@
    12. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `total`
    13. **Set Variable** → Variable Name: `exportTotal` → Value: תוצאת Get Dictionary Value
 
-   14. **Data Jar** → **Get Value** → Key: `expenses`
-   15. **Set Variable** → Variable Name: `allExpenses` → Value: תוצאת Get Value
-   16. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `allExpenses` (עדכון Widget)
+   14. **Text** → הרכב: `RESET|0`
+   15. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
+   16. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון Widget — איפוס סה"כ ל-₪0)
 
    17. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: `[exportCount] עסקאות | ₪[exportTotal]`
 
@@ -1076,8 +1106,9 @@
 - הסר Widget והוסף מחדש
 
 ### ExpenseSync תוקע / לא מסיים
-- **אל תריץ ExpenseSync ישירות מ-Scriptable** — הוא חייב לקבל נתונים מ-Shortcut
-- הפעל דרך **"הוצאות שלי"** → **🔄 סנכרון Widget** במקום
+- אפשר להריץ ExpenseSync ישירות מ-Scriptable — הוא יציג סטטוס (כמה עסקאות, סה"כ)
+- הפעל דרך **"הוצאות שלי"** → **🔄 סנכרון Widget** לעדכון ידני
+- **שים לב:** ExpenseSync מצפה לקלט בפורמט `date|time|merchant|amount|category|card|total` — טקסט פשוט, לא Dictionary
 
 ### Notification לא מופיע
 - הגדרות → Notifications → Shortcuts → Allow Notifications: **ON**
