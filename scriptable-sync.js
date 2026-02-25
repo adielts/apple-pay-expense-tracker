@@ -30,7 +30,21 @@ async function syncData() {
       inputData = JSON.parse(args.plainTexts[0]);
     } catch (e) {
       console.error("Failed to parse input: " + e);
-      return "ERROR: Invalid JSON input";
+    }
+  }
+
+  if (!inputData) {
+    // ── הופעל ישירות מ-Scriptable (בלי Shortcut) ──
+    // שלוף נתונים מ-Data Jar דרך URL callback
+    try {
+      const callbackURL = "datajar:///get?keypath=expenses";
+      const cbResult = await CallbackURL.open(callbackURL);
+      if (cbResult && cbResult.result) {
+        inputData = JSON.parse(cbResult.result);
+      }
+    } catch (e) {
+      console.log("Data Jar callback failed: " + e);
+      console.log("טיפ: הפעל את ExpenseSync מתוך Shortcut, או בדוק שה-Data Jar מותקן.");
     }
   }
 
@@ -41,7 +55,7 @@ async function syncData() {
     return "OK: Data synced successfully";
   }
 
-  // אם אין input, קרא נתונים קיימים (לשימוש ה-Widget)
+  // אם אין input, קרא נתונים קיימים
   if (fm.fileExists(filePath)) {
     await fm.downloadFileFromiCloud(filePath);
     const raw = fm.readString(filePath);
