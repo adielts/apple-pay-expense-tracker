@@ -367,9 +367,24 @@
 
 **פעולה 19a:** **Set Dictionary Value**
 
-- **Dictionary**: לחץ → בחר משתנה **`knownMerchants`** (הגיע מפעולה 9)
-- **Key**: לחץ → בחר משתנה **`merchantName`**
-- **Value**: לחץ → בחר משתנה **`selectedCategory`**
+חפש והוסף: **Set Dictionary Value**
+
+הפעולה מציגה 3 משבצות בסדר הזה:
+
+```
+Set [___] to/for [___] in [___]
+     ▲            ▲         ▲
+     VALUE        KEY        DICTIONARY
+```
+
+> ⚠️ **שים לב!** המשבצת הראשונה היא **Value** (לא Key!). אל תתבלבל.
+
+מלא לפי סדר המשבצות **בתצוגה**:
+- **משבצת ראשונה** (אחרי "Set") → לחץ → בחר משתנה **`selectedCategory`** ← הקטגוריה
+- **משבצת שנייה** (אחרי "to"/"for") → לחץ → בחר משתנה **`merchantName`** ← שם העסק כמפתח
+- **משבצת שלישית** (אחרי "in") → לחץ → בחר משתנה **`knownMerchants`** ← ה-Dictionary מפעולה 9
+
+**תוצאה:** `Set [selectedCategory] for [merchantName] in [knownMerchants]`
 
 **פעולה 19b:** **Set Variable**
 
