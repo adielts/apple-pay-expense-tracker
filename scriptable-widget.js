@@ -161,7 +161,8 @@ function addProgressBar(stack, spent, budget, width) {
   barStack.size = new Size(width, barHeight);
   barStack.backgroundColor = CONFIG.colors.separator;
 
-  const filledWidth = Math.max(ratio * width, 2);
+  // מינימום 6px כדי שהבר יהיה נראה גם בסכומים נמוכים
+  const filledWidth = spent > 0 ? Math.max(ratio * width, 6) : 0;
   const filledBar = barStack.addStack();
   filledBar.size = new Size(filledWidth, barHeight);
   filledBar.cornerRadius = barHeight / 2;

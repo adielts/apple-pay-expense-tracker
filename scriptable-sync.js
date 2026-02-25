@@ -118,6 +118,27 @@ async function syncData() {
     return;
   }
 
+  // ── תאימות לאחור: אם הקלט הוא JSON (Dictionary מ-Shortcut ישן) ──
+  try {
+    const jsonData = JSON.parse(input);
+    if (jsonData && (jsonData.monthlyTotal !== undefined || jsonData.transactions)) {
+      // חילוץ monthlyTotal מ-Dictionary
+      if (jsonData.monthlyTotal !== undefined) {
+        data.monthlyTotal = parseFloat(jsonData.monthlyTotal) || 0;
+      }
+      // חילוץ עסקאות אם יש (בד"כ ריקות בגלל באג Shortcuts)
+      if (jsonData.transactions && Array.isArray(jsonData.transactions) && jsonData.transactions.length > 0) {
+        data.transactions = jsonData.transactions;
+      }
+      fm.writeString(filePath, JSON.stringify(data, null, 2));
+      Script.setShortcutOutput("✅ Synced (JSON) | ₪" + data.monthlyTotal + " | " + data.transactions.length + " עסקאות");
+      Script.complete();
+      return;
+    }
+  } catch (e) {
+    // לא JSON — ממשיך לשגיאה
+  }
+
   // Input לא מוכר
   Script.setShortcutOutput("⚠️ פורמט לא תקין. נדרש: date|time|merchant|amount|category|card|total");
   Script.complete();
