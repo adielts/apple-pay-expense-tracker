@@ -1,9 +1,12 @@
 // ============================================================
 // 💾 Data Sync Helper - Scriptable Script
 // ============================================================
-// סקריפט עזר שמופעל מה-Shortcut אחרי כל עסקה
-// מייצא את הנתונים מ-Data Jar לקובץ JSON
-// שה-Widget יכול לקרוא
+// סקריפט עזר שמופעל מתוך Shortcut בלבד!
+// מקבל את נתוני expenses מה-Shortcut וכותב לקובץ JSON
+// שה-Widget יכול לקרוא.
+// 
+// ⚠️ אי אפשר להריץ ישירות מ-Scriptable — חייב להפעיל
+// מתוך Shortcut שמעביר את הנתונים מ-Data Jar.
 // ============================================================
 
 async function syncData() {
@@ -22,71 +25,61 @@ async function syncData() {
   let inputData;
 
   if (args.shortcutParameter) {
-    // אם הופעל מ-Shortcut עם פרמטר JSON
     inputData = args.shortcutParameter;
   } else if (args.plainTexts && args.plainTexts.length > 0) {
-    // אם הופעל עם טקסט
     try {
       inputData = JSON.parse(args.plainTexts[0]);
     } catch (e) {
-      console.error("Failed to parse input: " + e);
+      // אולי זה כבר אובייקט
+      inputData = args.plainTexts[0];
     }
-  }
-
-  if (!inputData) {
-    // ── הופעל ישירות מ-Scriptable (בלי Shortcut) ──
-    // שלוף נתונים מ-Data Jar דרך x-callback-url
+  } else if (args.queryParameters && args.queryParameters.data) {
     try {
-      const cb = new CallbackURL("datajar:///x-callback-url/get");
-      cb.addParameter("keypath", "expenses");
-      const cbResult = await cb.open();
-      if (cbResult && cbResult.result) {
-        // Data Jar מחזיר את הערך ב-result
-        const parsed = typeof cbResult.result === "string" 
-          ? JSON.parse(cbResult.result) 
-          : cbResult.result;
-        if (parsed) {
-          inputData = parsed;
-        }
-      }
+      inputData = JSON.parse(args.queryParameters.data);
     } catch (e) {
-      console.log("Data Jar callback failed: " + e);
-      // ── Fallback: נסה לקרוא מקובץ קיים ──
-      if (fm.fileExists(filePath)) {
-        await fm.downloadFileFromiCloud(filePath);
-        const raw = fm.readString(filePath);
-        console.log("Loaded existing expenses.json");
-        return raw;
-      }
-      console.log("טיפ: הפעל את ExpenseSync מתוך ה-Shortcut 'תעד עסקה' או 'הוצאות שלי'.");
+      inputData = args.queryParameters.data;
     }
   }
 
   if (inputData) {
-    // כתיבת נתונים חדשים
+    // כתיבת נתונים לקובץ
     const jsonString = JSON.stringify(inputData, null, 2);
     fm.writeString(filePath, jsonString);
-    return "OK: Data synced successfully";
+    
+    // ספירת עסקאות לאישור
+    let count = 0;
+    try {
+      const parsed = typeof inputData === "string" ? JSON.parse(inputData) : inputData;
+      count = (parsed.transactions || []).length;
+    } catch (e) {}
+    
+    return "✅ סנכרון הצליח! " + count + " עסקאות נכתבו לקובץ.";
   }
 
-  // אם אין input, קרא נתונים קיימים
+  // אין input — הופעל ישירות מ-Scriptable
   if (fm.fileExists(filePath)) {
     await fm.downloadFileFromiCloud(filePath);
     const raw = fm.readString(filePath);
-    return raw;
+    let count = 0;
+    try {
+      count = (JSON.parse(raw).transactions || []).length;
+    } catch (e) {}
+    return "ℹ️ קובץ קיים עם " + count + " עסקאות. לעדכון — הפעל דרך Shortcut 'הוצאות שלי' → '🔄 סנכרון Widget'.";
   }
 
-  // קובץ לא קיים - החזר מבנה ריק
-  const emptyData = {
-    transactions: [],
-    monthlyTotal: 0,
-    lastReset: new Date().toISOString().split("T")[0],
-  };
-
-  fm.writeString(filePath, JSON.stringify(emptyData, null, 2));
-  return JSON.stringify(emptyData);
+  return "⚠️ אין נתונים. הפעל את Shortcut 'הוצאות שלי' → '🔄 סנכרון Widget' כדי לסנכרן מ-Data Jar.";
 }
 
 const result = await syncData();
+
+// הצגת הודעה למשתמש אם הופעל מתוך Scriptable ישירות
+if (!config.runsInWidget && !args.shortcutParameter) {
+  const alert = new Alert();
+  alert.title = "ExpenseSync";
+  alert.message = result;
+  alert.addAction("OK");
+  await alert.present();
+}
+
 Script.setShortcutOutput(result);
 Script.complete();

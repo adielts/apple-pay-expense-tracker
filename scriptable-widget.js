@@ -29,31 +29,9 @@ const CONFIG = {
 
 // ─── קריאת נתונים ───────────────────────────────────────
 async function loadExpensesFromDataJar() {
-  // ── שיטה 1: קריאה ישירה מתיקיית Data Jar ב-iCloud ──
-  try {
-    const fm = FileManager.iCloud();
-    // Data Jar שומר את הנתונים בתיקייה שלו ב-iCloud
-    // הנתיב: /Scriptable/ExpenseTracker/expenses.json (נוצר ע"י ExpenseSync)
-    // אבל גם ננסה לקרוא ישירות מ-Data Jar store
-    const dataJarPaths = [
-      // נתיב 1: Group container של Data Jar
-      fm.joinPath(fm.libraryDirectory(), "../../../Data Jar"),
-      // נתיב 2: iCloud/Data Jar
-      fm.joinPath(fm.documentsDirectory(), "../../Data Jar"),
-    ];
-    
-    // ניסיון למצוא את תיקיית Data Jar
-    for (const djPath of dataJarPaths) {
-      if (fm.fileExists(djPath)) {
-        console.log("Found Data Jar at: " + djPath);
-      }
-    }
-  } catch (e) {
-    // לא קריטי, ממשיכים לשיטה הבאה
-    console.log("Data Jar direct read not available: " + e);
-  }
-
-  // ── שיטה 2: קריאה מקובץ JSON שנוצר על ידי ExpenseSync ──
+  // קריאה מקובץ JSON שנוצר על ידי ExpenseSync
+  // הקובץ מתעדכן אוטומטית אחרי כל עסקה (דרך Shortcut)
+  // או ידנית דרך "הוצאות שלי" → "🔄 סנכרון Widget"
   try {
     const fm = FileManager.iCloud();
     const dir = fm.documentsDirectory();
@@ -74,7 +52,7 @@ async function loadExpensesFromDataJar() {
       }
     }
   } catch (e) {
-    console.error("Error loading from JSON file: " + e);
+    console.error("Error loading expenses.json: " + e);
   }
 
   // החזרת מבנה ריק אם אין נתונים

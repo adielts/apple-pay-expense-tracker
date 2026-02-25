@@ -582,12 +582,13 @@
 חפש: **Choose from Menu**
 
 - **Prompt**: `💳 הוצאות שלי`
-- הוסף 5 אפשרויות:
+- הוסף 6 אפשרויות:
   1. `📊 סיכום חודשי`
   2. `📋 כל העסקאות`
   3. `📂 לפי קטגוריה`
   4. `💳 לפי כרטיס`
   5. `➕ הוסף ידנית`
+  6. `🔄 סנכרון Widget`
 
 ---
 
@@ -812,6 +813,18 @@
 
 17-24. (זהה לפעולות 23-32 מ-Shortcut "תעד עסקה"):
 - Data Jar: Add to List → Get monthlyTotal → Calculate → Set monthlyTotal → Get expenses → Scriptable: Sync → Notification
+
+---
+
+### ↪️ ענף: 🔄 סנכרון Widget
+
+> מעדכן את קובץ ה-JSON שה-Widget קורא ממנו. **הכרחי** אחרי הוספה ידנית ל-Data Jar, או אם ה-Widget לא מציג נתונים.
+
+1. **Data Jar** → **Get Value** → Key Path: `expenses`
+2. **Set Variable** → Variable Name: `allExpenses` → Value: תוצאת Get Value
+3. **Scriptable** → **Run Script** → Script: **ExpenseSync**
+   - לחץ על **Texts** → בחר משתנה **`allExpenses`**
+4. **Show Notification** → Title: `✅ Widget עודכן` → Body: `הנתונים סונכרנו ל-Widget`
 
 ---
 
@@ -1055,10 +1068,16 @@
 - בדוק שהמפתחות (`expenses`, `merchantMap`, `categories`) קיימים
 - נסה למחוק ולהגדיר מחדש
 
-### Widget ריק / לא מתעדכן
+### Widget ריק / לא מתעדכן / מציג ₪0
+- **הסיבה הנפוצה ביותר:** ה-Widget קורא מקובץ `expenses.json` ולא ישירות מ-Data Jar. אם הכנסת נתונים ידנית ל-Data Jar — הקובץ לא עודכן.
+- **פתרון:** הפעל **"הוצאות שלי"** → בחר **🔄 סנכרון Widget** — זה יעדכן את הקובץ
 - פתח Scriptable → הרץ `ExpenseWidget` ידנית → בדוק שגיאות
-- וודא שקובץ `expenses.json` קיים ב: Files → Scriptable → ExpenseTracker
+- וודא שקובץ `expenses.json` קיים ב: Files → iCloud Drive → Scriptable → ExpenseTracker
 - הסר Widget והוסף מחדש
+
+### ExpenseSync תוקע / לא מסיים
+- **אל תריץ ExpenseSync ישירות מ-Scriptable** — הוא חייב לקבל נתונים מ-Shortcut
+- הפעל דרך **"הוצאות שלי"** → **🔄 סנכרון Widget** במקום
 
 ### Notification לא מופיע
 - הגדרות → Notifications → Shortcuts → Allow Notifications: **ON**
