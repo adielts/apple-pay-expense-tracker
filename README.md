@@ -360,13 +360,26 @@
 
 ---
 
-#### פעולה 19: `Set Value` (Data Jar) — לימוד העסק
+#### פעולה 19: לימוד העסק — עדכון merchantMap
 
-**Data Jar** → **Set Value**
+> ⚠️ **אי אפשר** לשרשר key path דינמי ב-Data Jar (לא `/` ולא `.`).
+> הפתרון: מושכים את כל ה-Dictionary, מוסיפים מפתח, וכותבים בחזרה.
 
-- **Key Path**: הקלד `merchantMap/` ואז לחץ ובחר משתנה **`merchantName`**
-  - צריך להיראות: `merchantMap/`**[merchantName]**
+**פעולה 19a:** **Set Dictionary Value**
+
+- **Dictionary**: לחץ → בחר משתנה **`knownMerchants`** (הגיע מפעולה 9)
+- **Key**: לחץ → בחר משתנה **`merchantName`**
 - **Value**: לחץ → בחר משתנה **`selectedCategory`**
+
+**פעולה 19b:** **Set Variable**
+
+- **Variable Name**: `updatedMerchantMap`
+- **Value**: תוצאת **Set Dictionary Value** (פעולה 19a)
+
+**פעולה 19c:** **Data Jar** → **Set Value**
+
+- **Key Path**: `merchantMap`
+- **Value**: לחץ → בחר משתנה **`updatedMerchantMap`**
 
 > **כך המערכת לומדת!** בפעם הבאה שתגהץ באותו עסק — קטגוריה אוטומטית, 0 לחיצות.
 
@@ -556,7 +569,7 @@
    13.   15-16. Data Jar: Get categories → Set Variable
    Set    17.    Choose from List (קטגוריות)
    Var    18.    Set Variable (selectedCategory)
-   │      19.    Data Jar: Set merchantMap/[עסק] (לימוד!)
+   │      19a-c. Set Dict Value + Set Var + Data Jar: Set merchantMap (לימוד!)
    │      │
    └──┬──┘
       │
