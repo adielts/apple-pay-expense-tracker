@@ -150,7 +150,7 @@ function getHebrewMonth() {
   return months[now.getMonth()] + " " + now.getFullYear();
 }
 
-// ─── Progress Bar ─────────────────────────────────────────
+// ─── Progress Bar (RTL — מתמלא מימין לשמאל) ──────────────
 function addProgressBar(stack, spent, budget, width) {
   const ratio = Math.min(spent / budget, 1.0);
   const barHeight = 6;
@@ -163,6 +163,14 @@ function addProgressBar(stack, spent, budget, width) {
 
   // מינימום 6px כדי שהבר יהיה נראה גם בסכומים נמוכים
   const filledWidth = spent > 0 ? Math.max(ratio * width, 6) : 0;
+
+  // Spacer דוחף את הבר ימינה (RTL)
+  const emptyWidth = width - filledWidth;
+  if (emptyWidth > 0) {
+    const spacer = barStack.addStack();
+    spacer.size = new Size(emptyWidth, barHeight);
+  }
+
   const filledBar = barStack.addStack();
   filledBar.size = new Size(filledWidth, barHeight);
   filledBar.cornerRadius = barHeight / 2;
