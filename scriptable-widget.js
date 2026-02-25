@@ -27,9 +27,33 @@ const CONFIG = {
   topCategoriesCount: 4,
 };
 
-// ─── קריאת נתונים מ-Data Jar ──────────────────────────────
+// ─── קריאת נתונים ───────────────────────────────────────
 async function loadExpensesFromDataJar() {
-  // ── קריאה מקובץ JSON שנוצר על ידי ExpenseSync ──
+  // ── שיטה 1: קריאה ישירה מתיקיית Data Jar ב-iCloud ──
+  try {
+    const fm = FileManager.iCloud();
+    // Data Jar שומר את הנתונים בתיקייה שלו ב-iCloud
+    // הנתיב: /Scriptable/ExpenseTracker/expenses.json (נוצר ע"י ExpenseSync)
+    // אבל גם ננסה לקרוא ישירות מ-Data Jar store
+    const dataJarPaths = [
+      // נתיב 1: Group container של Data Jar
+      fm.joinPath(fm.libraryDirectory(), "../../../Data Jar"),
+      // נתיב 2: iCloud/Data Jar
+      fm.joinPath(fm.documentsDirectory(), "../../Data Jar"),
+    ];
+    
+    // ניסיון למצוא את תיקיית Data Jar
+    for (const djPath of dataJarPaths) {
+      if (fm.fileExists(djPath)) {
+        console.log("Found Data Jar at: " + djPath);
+      }
+    }
+  } catch (e) {
+    // לא קריטי, ממשיכים לשיטה הבאה
+    console.log("Data Jar direct read not available: " + e);
+  }
+
+  // ── שיטה 2: קריאה מקובץ JSON שנוצר על ידי ExpenseSync ──
   try {
     const fm = FileManager.iCloud();
     const dir = fm.documentsDirectory();
@@ -44,10 +68,13 @@ async function loadExpensesFromDataJar() {
     if (fm.fileExists(filePath)) {
       await fm.downloadFileFromiCloud(filePath);
       const raw = fm.readString(filePath);
-      return JSON.parse(raw);
+      const data = JSON.parse(raw);
+      if (data && (data.transactions || data.monthlyTotal !== undefined)) {
+        return data;
+      }
     }
   } catch (e) {
-    console.error("Error loading expenses: " + e);
+    console.error("Error loading from JSON file: " + e);
   }
 
   // החזרת מבנה ריק אם אין נתונים
@@ -559,8 +586,10 @@ async function main() {
       widget = createMediumWidget(stats);
   }
 
-  // לחיצה על Widget → פותח את Shortcut "הוצאות שלי"
-  widget.url = "shortcuts://run-shortcut?name=" + encodeURIComponent("הוצאות שלי");
+  // לחיצה על Widget → מרענן את הWidget (מריץ את הסקריפט מחדש)
+  // אם רוצים לפתוח Shortcut במקום, שנה ב-Scriptable:
+  // ⋯ → Widget → When Interacting → Open URL → shortcuts://run-shortcut?name=הוצאות%20שלי
+  // widget.url = "shortcuts://run-shortcut?name=" + encodeURIComponent("הוצאות שלי");
 
   if (config.runsInWidget) {
     Script.setWidget(widget);

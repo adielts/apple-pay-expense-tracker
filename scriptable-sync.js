@@ -35,16 +35,30 @@ async function syncData() {
 
   if (!inputData) {
     // ── הופעל ישירות מ-Scriptable (בלי Shortcut) ──
-    // שלוף נתונים מ-Data Jar דרך URL callback
+    // שלוף נתונים מ-Data Jar דרך x-callback-url
     try {
-      const callbackURL = "datajar:///get?keypath=expenses";
-      const cbResult = await CallbackURL.open(callbackURL);
+      const cb = new CallbackURL("datajar:///x-callback-url/get");
+      cb.addParameter("keypath", "expenses");
+      const cbResult = await cb.open();
       if (cbResult && cbResult.result) {
-        inputData = JSON.parse(cbResult.result);
+        // Data Jar מחזיר את הערך ב-result
+        const parsed = typeof cbResult.result === "string" 
+          ? JSON.parse(cbResult.result) 
+          : cbResult.result;
+        if (parsed) {
+          inputData = parsed;
+        }
       }
     } catch (e) {
       console.log("Data Jar callback failed: " + e);
-      console.log("טיפ: הפעל את ExpenseSync מתוך Shortcut, או בדוק שה-Data Jar מותקן.");
+      // ── Fallback: נסה לקרוא מקובץ קיים ──
+      if (fm.fileExists(filePath)) {
+        await fm.downloadFileFromiCloud(filePath);
+        const raw = fm.readString(filePath);
+        console.log("Loaded existing expenses.json");
+        return raw;
+      }
+      console.log("טיפ: הפעל את ExpenseSync מתוך ה-Shortcut 'תעד עסקה' או 'הוצאות שלי'.");
     }
   }
 
