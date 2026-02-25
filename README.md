@@ -872,17 +872,61 @@ Set [___] to/for [___] in [___]
 
 ### ↪️ ענף: 🔄 סנכרון Widget
 
-> מעדכן את קובץ ה-JSON שה-Widget קורא ממנו. **הכרחי** אחרי הוספה ידנית ל-Data Jar, או אם ה-Widget לא מציג נתונים.
+> מעדכן את קובץ ה-JSON שה-Widget קורא ממנו — כולל **כל העסקאות** (לא רק סה"כ).
+> **הכרחי** אחרי הוספה ידנית ל-Data Jar, או אם ה-Widget לא מציג עסקאות.
 
-> ⚠️ **הערה:** סנכרון זה מעביר רק את ה-`monthlyTotal`, לא את רשימת העסקאות. עסקאות נכתבות אוטומטית ע"י ה-Shortcut הראשי (תעד עסקה).
+> 💡 הטריק: שדות בודדים של עסקה (date, merchant, amount) **כן** עוברים מ-Shortcuts ל-Scriptable.
+> רק List-of-Dicts שלם לא עובר. לכן עוברים על כל עסקה ומרכיבים שורת טקסט.
 
-1. **Data Jar** → **Get Value** → Key Path: `expenses/monthlyTotal`
-2. **Set Variable** → Variable Name: `currentTotal` → Value: תוצאת Get Value
-3. **Text** → הרכב: `SYNC|` → [משתנה **`currentTotal`**]
-4. **Set Variable** → Variable Name: `syncText` → Value: תוצאת Text
-5. **Scriptable** → **Run Script** → Script: **ExpenseSync**
-   - לחץ על **Texts** → בחר משתנה **`syncText`**
-6. **Show Notification** → Title: `✅ Widget עודכן` → Body: `סה"כ: ₪` → [משתנה **`currentTotal`**]
+**הזרימה:**
+
+1. **Data Jar** → **Get Value** → Key Path: `expenses/transactions`
+2. **Set Variable** → Variable Name: `allTransactions` → Value: תוצאת Get Value
+
+3. **Text** → השאר **ריק** (זה יהיה המשתנה שנצבור בו שורות)
+4. **Set Variable** → Variable Name: `syncLines` → Value: תוצאת Text
+
+5. **Repeat with Each** → Input: `allTransactions`
+
+   > בתוך ה-Repeat:
+
+   6. **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `date`
+   7. **Set Variable** → `txDate`
+   8. **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `time`
+   9. **Set Variable** → `txTime`
+   10. **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `merchant`
+   11. **Set Variable** → `txMerchant`
+   12. **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `amount`
+   13. **Set Variable** → `txAmount`
+   14. **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `category`
+   15. **Set Variable** → `txCategory`
+   16. **Get Dictionary Value** → Dictionary: **Repeat Item** → Key: `card`
+   17. **Set Variable** → `txCard`
+
+   18. **Text** → הרכב שורה (בחר משתנים מהרשימה):
+   ```
+   [syncLines]
+   [txDate]|[txTime]|[txMerchant]|[txAmount]|[txCategory]|[txCard]
+   ```
+   > ⚠️ שורה ראשונה = `syncLines` (הטקסט שנצבר עד כה), שורה שנייה = העסקה החדשה
+
+   19. **Set Variable** → `syncLines` → Value: תוצאת Text
+
+20. **End Repeat**
+
+21. **Data Jar** → **Get Value** → Key Path: `expenses/monthlyTotal`
+22. **Set Variable** → `currentTotal`
+
+23. **Text** → הרכב:
+   ```
+   [syncLines]
+   TOTAL|[currentTotal]
+   ```
+
+24. **Set Variable** → `syncText` → Value: תוצאת Text
+25. **Scriptable** → **Run Script** → Script: **ExpenseSync**
+    - לחץ על **Texts** → בחר משתנה **`syncText`**
+26. **Show Notification** → Title: `✅ Widget עודכן` → Body: תוצאת Run Script
 
 ---
 

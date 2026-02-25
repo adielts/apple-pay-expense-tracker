@@ -1,17 +1,24 @@
 // ============================================================
 // 💾 Data Sync Helper - Scriptable Script
 // ============================================================
-// מקבל עסקה בודדת מה-Shortcut ומצרף אותה לקובץ expenses.json
+// מקבל עסקאות מה-Shortcut ומצרף אותן לקובץ expenses.json
 // 
 // מה ה-Shortcut צריך לשלוח (ב-Texts):
-//   שורה בפורמט: date|time|merchant|amount|category|card|monthlyTotal
-//   לדוגמה:  2026-02-25|10:30|CAFE AROMA|50|🍔 מזון|1234|170
 //
-//   לסנכרון סה"כ בלבד:  SYNC|170
-//   לאיפוס חודשי:        RESET|0
+//   עסקה בודדת:
+//     date|time|merchant|amount|category|card|monthlyTotal
+//     לדוגמה:  2026-02-25|10:30|CAFE AROMA|50|🍔 מזון|1234|170
+//
+//   מספר עסקאות (שורה לכל עסקה):
+//     2026-02-20|09:00|SUPERSAL|120|🛒 סופר|1234
+//     2026-02-22|14:30|CAFE AROMA|50|🍔 מזון|1234
+//     TOTAL|170
+//
+//   סנכרון סה"כ בלבד:  SYNC|170
+//   איפוס חודשי:        RESET|0
 //
 // למה טקסט ולא Dictionary?
-//   כי Shortcuts לא מעביר מבנים מורכבים (List of Dicts) ל-Scriptable בצורה תקינה.
+//   כי Shortcuts לא מעביר מבנים מורכבים (List of Dicts) ל-Scriptable.
 //   טקסט פשוט תמיד עובד.
 // ============================================================
 
@@ -67,6 +74,51 @@ async function syncData() {
   // פענוח הקלט — פורמט: date|time|merchant|amount|category|card|monthlyTotal
   // או: RESET|monthlyTotal  (לאיפוס)
   // או: SYNC|monthlyTotal   (סנכרון סה"כ בלבד)
+  // או: מספר שורות (כל שורה = עסקה, שורה אחרונה TOTAL|סכום)
+
+  // בדוק אם יש מספר שורות (סנכרון מלא)
+  const lines = input.trim().split("\n").map(l => l.trim()).filter(l => l.length > 0);
+
+  if (lines.length > 1) {
+    // ── מצב סנכרון מלא: מספר שורות ──
+    // מחליף את כל העסקאות בקובץ
+    data.transactions = [];
+    let newTotal = 0;
+
+    for (const line of lines) {
+      const p = line.split("|");
+
+      if (p[0] === "TOTAL") {
+        // שורה אחרונה — סה"כ
+        newTotal = parseFloat(p[1]) || 0;
+        continue;
+      }
+
+      if (p.length >= 6) {
+        const tx = {
+          date: p[0].trim(),
+          time: p[1].trim(),
+          merchant: p[2].trim(),
+          amount: parseFloat(p[3]) || 0,
+          category: p[4].trim(),
+          card: p[5].trim()
+        };
+        data.transactions.push(tx);
+        newTotal += tx.amount;
+      }
+    }
+
+    data.monthlyTotal = newTotal;
+    data.lastReset = data.lastReset || new Date().toISOString().split("T")[0];
+    fm.writeString(filePath, JSON.stringify(data, null, 2));
+
+    const result = "✅ סנכרון מלא | " + data.transactions.length + " עסקאות | ₪" + data.monthlyTotal;
+    Script.setShortcutOutput(result);
+    Script.complete();
+    return;
+  }
+
+  // ── שורה בודדת ──
   const parts = input.split("|");
 
   if (parts[0] === "RESET") {
