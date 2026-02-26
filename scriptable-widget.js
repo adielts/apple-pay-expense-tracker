@@ -328,19 +328,12 @@ function createMediumWidget(stats) {
       catItem.layoutVertically();
       catItem.centerAlignContent();
 
-      // אימוג'י
-      const emoji = cat[0].split(" ")[0];
-      const emojiText = catItem.addText(emoji);
-      emojiText.font = Font.systemFont(16);
-      emojiText.centerAlignText();
-
-      // שם קטגוריה (בלי אימוג'י)
-      const catName = cat[0].replace(/^\S+\s*/, "") || cat[0];
-      const nameText = catItem.addText(catName);
-      nameText.font = Font.systemFont(9);
-      nameText.textColor = CONFIG.colors.subtitleText;
-      nameText.centerAlignText();
-      nameText.lineLimit = 1;
+      // שם קטגוריה מלא (אימוג'י + שם)
+      const catLabel = catItem.addText(cat[0]);
+      catLabel.font = Font.systemFont(12);
+      catLabel.textColor = CONFIG.colors.titleText;
+      catLabel.centerAlignText();
+      catLabel.lineLimit = 1;
 
       const amtText = catItem.addText(formatCurrency(cat[1]));
       amtText.font = Font.boldSystemFont(11);
