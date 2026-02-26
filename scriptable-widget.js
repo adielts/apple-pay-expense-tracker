@@ -328,11 +328,19 @@ function createMediumWidget(stats) {
       catItem.layoutVertically();
       catItem.centerAlignContent();
 
-      // אימוג'י + שם קטגוריה (רק האימוג'י)
+      // אימוג'י
       const emoji = cat[0].split(" ")[0];
       const emojiText = catItem.addText(emoji);
       emojiText.font = Font.systemFont(16);
       emojiText.centerAlignText();
+
+      // שם קטגוריה (בלי אימוג'י)
+      const catName = cat[0].replace(/^\S+\s*/, "") || cat[0];
+      const nameText = catItem.addText(catName);
+      nameText.font = Font.systemFont(9);
+      nameText.textColor = CONFIG.colors.subtitleText;
+      nameText.centerAlignText();
+      nameText.lineLimit = 1;
 
       const amtText = catItem.addText(formatCurrency(cat[1]));
       amtText.font = Font.boldSystemFont(11);
@@ -372,7 +380,7 @@ function createMediumWidget(stats) {
   // עסקה אחרונה
   if (stats.lastTransaction) {
     const lastText = bottomStack.addText(
-      `${stats.lastTransaction.merchant} ${formatCurrency(parseFloat(stats.lastTransaction.amount))}`
+      `אחרונה: ${stats.lastTransaction.merchant} ${formatCurrency(parseFloat(stats.lastTransaction.amount))}`
     );
     lastText.font = Font.systemFont(10);
     lastText.textColor = CONFIG.colors.subtitleText;
