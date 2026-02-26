@@ -59,6 +59,18 @@ async function loadExpensesFromDataJar() {
   return { transactions: [], monthlyTotal: 0 };
 }
 
+// ─── פענוח תאריך (תומך ב-dd-MM-yyyy וגם yyyy-MM-dd) ──────
+function parseDate(dateStr) {
+  if (!dateStr) return new Date(NaN);
+  // dd-MM-yyyy (למשל 26-02-2026)
+  const ddmmyyyy = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (ddmmyyyy) {
+    return new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]));
+  }
+  // yyyy-MM-dd (ISO — למשל 2026-02-26)
+  return new Date(dateStr);
+}
+
 // ─── פילטר עסקאות לחודש הנוכחי ────────────────────────────
 function filterCurrentMonth(transactions) {
   const now = new Date();
@@ -66,8 +78,8 @@ function filterCurrentMonth(transactions) {
   const currentYear = now.getFullYear();
 
   return transactions.filter((t) => {
-    const d = new Date(t.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    const d = parseDate(t.date);
+    return !isNaN(d.getTime()) && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   });
 }
 
