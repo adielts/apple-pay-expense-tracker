@@ -372,19 +372,17 @@
 הפעולה מציגה 3 משבצות בסדר הזה:
 
 ```
-Set [___] to/for [___] in [___]
-     ▲            ▲         ▲
-     VALUE        KEY        DICTIONARY
+Set [___] to [___] in [___]
+     ▲         ▲        ▲
+     KEY      VALUE    DICTIONARY
 ```
 
-> ⚠️ **שים לב!** המשבצת הראשונה היא **Value** (לא Key!). אל תתבלבל.
-
 מלא לפי סדר המשבצות **בתצוגה**:
-- **משבצת ראשונה** (אחרי "Set") → לחץ → בחר משתנה **`selectedCategory`** ← הקטגוריה
-- **משבצת שנייה** (אחרי "to"/"for") → לחץ → בחר משתנה **`merchantName`** ← שם העסק כמפתח
+- **משבצת ראשונה** (אחרי "Set") → לחץ → בחר משתנה **`merchantName`** ← שם העסק כמפתח
+- **משבצת שנייה** (אחרי "to") → לחץ → בחר משתנה **`selectedCategory`** ← הקטגוריה כערך
 - **משבצת שלישית** (אחרי "in") → לחץ → בחר משתנה **`knownMerchants`** ← ה-Dictionary מפעולה 9
 
-**תוצאה:** `Set [selectedCategory] for [merchantName] in [knownMerchants]`
+**תוצאה:** `Set [merchantName] to [selectedCategory] in [knownMerchants]`
 
 **פעולה 19b:** **Set Variable**
 
