@@ -48,24 +48,19 @@ async function syncData() {
     }
   }
 
-  // קבלת Input מ-Shortcut
+  // קבלת Input מ-Shortcut — בודק את כל המקורות האפשריים
   let input = null;
-  if (args.plainTexts && args.plainTexts.length > 0) {
+  if (args.plainTexts && args.plainTexts.length > 0 && args.plainTexts[0].trim() !== "") {
     input = args.plainTexts[0];
   } else if (args.shortcutParameter) {
     input = String(args.shortcutParameter);
+  } else if (args.texts && args.texts.length > 0) {
+    input = args.texts[0];
   }
 
   if (!input || input.trim() === "") {
-    // הופעל ללא input — הצג סטטוס
-    const msg = "ℹ️ " + data.transactions.length + " עסקאות | ₪" + (data.monthlyTotal || 0) + "\n\nלסנכרון: הפעל דרך Shortcut.";
-    if (!config.runsInWidget) {
-      const a = new Alert();
-      a.title = "ExpenseSync";
-      a.message = msg;
-      a.addAction("OK");
-      await a.present();
-    }
+    // הופעל ללא input — החזר סטטוס (ללא Alert כי זה נכשל ב-Siri/Shortcuts)
+    const msg = "ℹ️ " + data.transactions.length + " עסקאות | ₪" + (data.monthlyTotal || 0);
     Script.setShortcutOutput(msg);
     Script.complete();
     return;
