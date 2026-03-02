@@ -970,38 +970,39 @@ Set [___] to [___] in [___]
 
 > הפלט מגיע בפורמט: `OK|כמות|סכום|חודש` או `ERROR|הודעה`
 
-4. **Split Text** → Text: `exportResult` → Separator: **Custom** → הקלד `|`
-5. **Set Variable** → Variable Name: `resultParts` → Value: תוצאת Split Text
+4. **Text** → לחץ על השדה → בחר משתנה **`exportResult`** *(ממיר לטקסט רגיל)*
+5. **Set Variable** → Variable Name: `exportResultText` → Value: תוצאת Text
 
-6. **Get Item from List** → List: `resultParts` → Get: **First Item**
-7. **Set Variable** → Variable Name: `exportStatus`
-8. **Text** → לחץ על השדה → בחר משתנה **`exportStatus`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי is)*
-9. **Set Variable** → Variable Name: `exportStatusText` → Value: תוצאת Text
+6. **If** → `exportResultText` **begins with** `OK`:
 
-10. **If** → `exportStatusText` **is** `OK`:
+   > **⚠️ חשוב:** בחר **begins with** ולא **is**! זה בודק שהתוצאה מתחילה ב-OK.
 
-   11. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
+   7. **Split Text** → Text: `exportResultText` → Separator: **Custom** → הקלד `|`
+   8. **Set Variable** → Variable Name: `resultParts` → Value: תוצאת Split Text
 
-   12. **Date** → חפש והוסף פעולת **Date** → Date: **Current Date**
-   13. **Format Date** → Date: תוצאת Date → Format: **Custom** → `dd-MM-yyyy`
-   14. **Set Variable** → Variable Name: `todayDate` → Value: תוצאת Format Date
-   15. **Data Jar** → **Set Value** → Key: `expenses/lastReset` → Value: `todayDate`
+   9. **Number** → הקלד `0`
+   10. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: לחץ → בחר את **Number** (תוצאה מפעולה 9)
 
-   16. **List** → חפש והוסף פעולת **List** — **אל תוסיף פריטים**, השאר ריק
-   17. **Data Jar** → **Set Value** → Key Path: `expenses/transactions` → Value: לחץ → בחר את **List** (התוצאה מפעולה 16 — מנקה את העסקאות מ-Data Jar)
+   11. **Date** → חפש והוסף פעולת **Date** → Date: **Current Date**
+   12. **Format Date** → Date: תוצאת Date → Format: **Custom** → `dd-MM-yyyy`
+   13. **Set Variable** → Variable Name: `todayDate` → Value: תוצאת Format Date
+   14. **Data Jar** → **Set Value** → Key: `expenses/lastReset` → Value: `todayDate`
 
-   18. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
-   19. **Set Variable** → Variable Name: `exportCount`
-   20. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
-   21. **Set Variable** → Variable Name: `exportTotal`
+   15. **List** → חפש והוסף פעולת **List** — **אל תוסיף פריטים**, השאר ריק
+   16. **Data Jar** → **Set Value** → Key Path: `expenses/transactions` → Value: לחץ → בחר את **List** (התוצאה מפעולה 15 — מנקה את העסקאות מ-Data Jar)
 
-   22. **Text** → הרכב: `RESET|0`
-   23. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
-   24. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון expenses.json — איפוס סה"כ ומחיקת עסקאות)
+   17. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
+   18. **Set Variable** → Variable Name: `exportCount`
+   19. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
+   20. **Set Variable** → Variable Name: `exportTotal`
 
-   25. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
+   21. **Text** → הרכב: `RESET|0`
+   22. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
+   23. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון expenses.json — איפוס סה"כ ומחיקת עסקאות)
 
-20. **End If**
+   24. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
+
+25. **End If**
 
 ---
 
