@@ -968,29 +968,34 @@ Set [___] to [___] in [___]
 2. **Scriptable** → **Run Script** → Script: **ExpenseExportCSV**
 3. **Set Variable** → Variable Name: `exportResult` → Value: תוצאת Run Script
 
-4. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `status`
-5. **Set Variable** → Variable Name: `exportStatus` → Value: תוצאת Get Dictionary Value
-6. **Text** → לחץ על השדה → בחר משתנה **`exportStatus`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי is)*
-7. **Set Variable** → Variable Name: `exportStatusText` → Value: תוצאת Text
+> הפלט מגיע בפורמט: `OK|כמות|סכום|חודש` או `ERROR|הודעה`
 
-8. **If** → `exportStatusText` **is** `OK`:
+4. **Split Text** → Text: `exportResult` → Separator: **Custom** → הקלד `|`
+5. **Set Variable** → Variable Name: `resultParts` → Value: תוצאת Split Text
 
-   9. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
+6. **Get Item from List** → List: `resultParts` → Get: **First Item**
+7. **Set Variable** → Variable Name: `exportStatus`
+8. **Text** → לחץ על השדה → בחר משתנה **`exportStatus`** *(הכרחי! ממיר לטקסט כדי שה-If יזהה תנאי is)*
+9. **Set Variable** → Variable Name: `exportStatusText` → Value: תוצאת Text
+
+10. **If** → `exportStatusText` **is** `OK`:
+
+   11. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
 
    > **הערה:** העסקאות **לא נמחקות** — רק ה-monthlyTotal מתאפס, ההיסטוריה נשמרת.
 
-   10. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `count`
-   11. **Set Variable** → Variable Name: `exportCount` → Value: תוצאת Get Dictionary Value
-   12. **Get Dictionary Value** → Dictionary: `exportResult` → Key: `total`
-   13. **Set Variable** → Variable Name: `exportTotal` → Value: תוצאת Get Dictionary Value
+   12. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
+   13. **Set Variable** → Variable Name: `exportCount`
+   14. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
+   15. **Set Variable** → Variable Name: `exportTotal`
 
-   14. **Text** → הרכב: `RESET|0`
-   15. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
-   16. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון Widget — איפוס סה"כ ל-₪0)
+   16. **Text** → הרכב: `RESET|0`
+   17. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
+   18. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון Widget — איפוס סה"כ ל-₪0)
 
-   17. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: `[exportCount] עסקאות | ₪[exportTotal]`
+   19. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
 
-18. **End If**
+20. **End If**
 
 ---
 

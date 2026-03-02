@@ -3,7 +3,19 @@
 // ============================================================
 // מייצא את עסקאות החודש לקובץ CSV
 // מופעל מתוך Shortcut "אפס חודש"
+//
+// פלט (טקסט): OK|count|total|month  או  ERROR|הודעה
 // ============================================================
+
+// פענוח תאריך (תומך ב-dd-MM-yyyy וגם yyyy-MM-dd)
+function parseDate(dateStr) {
+  if (!dateStr) return new Date(NaN);
+  const ddmmyyyy = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (ddmmyyyy) {
+    return new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]));
+  }
+  return new Date(dateStr);
+}
 
 async function exportCSV() {
   const fm = FileManager.iCloud();
@@ -14,7 +26,7 @@ async function exportCSV() {
   const filePath = fm.joinPath(trackerDir, "expenses.json");
 
   if (!fm.fileExists(filePath)) {
-    Script.setShortcutOutput("ERROR: No data file found");
+    Script.setShortcutOutput("ERROR|No data file found");
     Script.complete();
     return;
   }
@@ -24,7 +36,7 @@ async function exportCSV() {
   const transactions = data.transactions || [];
 
   if (transactions.length === 0) {
-    Script.setShortcutOutput("ERROR: No transactions to export");
+    Script.setShortcutOutput("ERROR|No transactions to export");
     Script.complete();
     return;
   }
@@ -35,12 +47,12 @@ async function exportCSV() {
   const currentYear = now.getFullYear();
 
   const monthlyTransactions = transactions.filter((t) => {
-    const d = new Date(t.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    const d = parseDate(t.date);
+    return !isNaN(d.getTime()) && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   });
 
   if (monthlyTransactions.length === 0) {
-    Script.setShortcutOutput("ERROR: No transactions this month");
+    Script.setShortcutOutput("ERROR|No transactions this month");
     Script.complete();
     return;
   }
@@ -85,13 +97,7 @@ async function exportCSV() {
   fm.writeString(csvPath, csv);
 
   Script.setShortcutOutput(
-    JSON.stringify({
-      status: "OK",
-      file: csvPath,
-      count: monthlyTransactions.length,
-      total: total.toFixed(2),
-      month: monthNames[currentMonth],
-    })
+    "OK|" + monthlyTransactions.length + "|" + total.toFixed(2) + "|" + monthNames[currentMonth]
   );
   Script.complete();
 }
