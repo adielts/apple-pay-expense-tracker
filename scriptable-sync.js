@@ -122,10 +122,13 @@ async function syncData() {
   const parts = input.split("|");
 
   if (parts[0] === "RESET") {
-    // איפוס — רק מעדכן monthlyTotal
+    // איפוס — מנקה עסקאות ישנות ומאפס monthlyTotal
+    const oldCount = data.transactions.length;
+    data.transactions = [];
     data.monthlyTotal = parseFloat(parts[1]) || 0;
+    data.lastReset = new Date().toISOString().split("T")[0];
     fm.writeString(filePath, JSON.stringify(data, null, 2));
-    Script.setShortcutOutput("✅ Total reset to ₪" + data.monthlyTotal);
+    Script.setShortcutOutput("✅ Reset | נמחקו " + oldCount + " עסקאות | סה\"כ: ₪" + data.monthlyTotal);
     Script.complete();
     return;
   }

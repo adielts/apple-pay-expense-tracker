@@ -87,13 +87,11 @@ function filterCurrentMonth(transactions) {
 function calculateStats(transactions, data) {
   const monthlyTransactions = filterCurrentMonth(transactions);
 
-  // סה"כ החודש — מחשב מעסקאות, או fallback ל-monthlyTotal
-  const totalSpent = monthlyTransactions.length > 0
-    ? monthlyTransactions.reduce(
-        (sum, t) => sum + (parseFloat(t.amount) || 0),
-        0
-      )
-    : (parseFloat(data.monthlyTotal) || 0);
+  // סה"כ החודש — מחשב אך ורק מעסקאות החודש הנוכחי
+  const totalSpent = monthlyTransactions.reduce(
+    (sum, t) => sum + (parseFloat(t.amount) || 0),
+    0
+  );
 
   // פירוט לפי קטגוריה
   const byCategory = {};
