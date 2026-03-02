@@ -189,8 +189,18 @@ async function syncData() {
     // לא JSON — ממשיך לשגיאה
   }
 
-  // Input לא מוכר
-  Script.setShortcutOutput("⚠️ פורמט לא תקין. נדרש: date|time|merchant|amount|category|card|total");
+  // Input לא מוכר — אם הוא ריק או רק רווחים/שורות חדשות, נתייחס כאילו אין עסקאות
+  const trimmed = input.replace(/[\s\n\r|]+/g, "");
+  if (trimmed === "" || trimmed === "TOTAL" || trimmed === "TOTAL0") {
+    // אין עסקאות — שמור קובץ ריק (מתרחש אחרי איפוס)
+    data.monthlyTotal = 0;
+    fm.writeString(filePath, JSON.stringify(data, null, 2));
+    Script.setShortcutOutput("✅ Widget עודכן | 0 עסקאות | ₪0");
+    Script.complete();
+    return;
+  }
+
+  Script.setShortcutOutput("⚠️ פורמט לא תקין. נדרש: date|time|merchant|amount|category|card|total\nInput received: " + input.substring(0, 100));
   Script.complete();
 }
 
