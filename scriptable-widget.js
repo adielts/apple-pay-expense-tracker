@@ -594,6 +594,22 @@ async function main() {
   if (config.runsInWidget) {
     Script.setWidget(widget);
   } else {
+    // הצגת מידע דיבאג לפני תצוגת Widget
+    const debugMsg = [
+      "📊 Debug Info:",
+      "transactions total: " + transactions.length,
+      "filtered (this month): " + stats.transactionCount,
+      "totalSpent: ₪" + stats.totalSpent,
+      "categories: " + stats.sortedCategories.length,
+      "last: " + (stats.lastTransaction ? stats.lastTransaction.merchant + " ₪" + stats.lastTransaction.amount : "none"),
+    ].join("\n");
+    
+    const debugAlert = new Alert();
+    debugAlert.title = "Widget Debug";
+    debugAlert.message = debugMsg;
+    debugAlert.addAction("Show Widget");
+    await debugAlert.present();
+    
     // תצוגה מקדימה בהרצה מתוך Scriptable
     switch (widgetFamily) {
       case "small":

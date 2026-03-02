@@ -982,18 +982,24 @@ Set [___] to [___] in [___]
 
    11. **Data Jar** → **Set Value** → Key: `expenses/monthlyTotal` → Value: `0`
 
-   > **הערה:** העסקאות **לא נמחקות** — רק ה-monthlyTotal מתאפס, ההיסטוריה נשמרת.
+   12. **Date** → חפש והוסף פעולת **Date** → Date: **Current Date**
+   13. **Format Date** → Date: תוצאת Date → Format: **Custom** → `dd-MM-yyyy`
+   14. **Set Variable** → Variable Name: `todayDate` → Value: תוצאת Format Date
+   15. **Data Jar** → **Set Value** → Key: `expenses/lastReset` → Value: `todayDate`
 
-   12. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
-   13. **Set Variable** → Variable Name: `exportCount`
-   14. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
-   15. **Set Variable** → Variable Name: `exportTotal`
+   16. **List** → חפש והוסף פעולת **List** — **אל תוסיף פריטים**, השאר ריק
+   17. **Data Jar** → **Set Value** → Key Path: `expenses/transactions` → Value: לחץ → בחר את **List** (התוצאה מפעולה 16 — מנקה את העסקאות מ-Data Jar)
 
-   16. **Text** → הרכב: `RESET|0`
-   17. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
-   18. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון Widget — איפוס סה"כ ל-₪0)
+   18. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
+   19. **Set Variable** → Variable Name: `exportCount`
+   20. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
+   21. **Set Variable** → Variable Name: `exportTotal`
 
-   19. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
+   22. **Text** → הרכב: `RESET|0`
+   23. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
+   24. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון expenses.json — איפוס סה"כ ומחיקת עסקאות)
+
+   25. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
 
 20. **End If**
 
