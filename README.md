@@ -988,21 +988,20 @@ Set [___] to [___] in [___]
    13. **Set Variable** → Variable Name: `todayDate` → Value: תוצאת Format Date
    14. **Data Jar** → **Set Value** → Key: `expenses/lastReset` → Value: `todayDate`
 
-   15. **List** → חפש והוסף פעולת **List** — **אל תוסיף פריטים**, השאר ריק
-   16. **Data Jar** → **Set Value** → Key Path: `expenses/transactions` → Value: לחץ → בחר את **List** (התוצאה מפעולה 15 — מנקה את העסקאות מ-Data Jar)
+   > **⚠️ אל תנקה את `transactions` ב-Data Jar!** Shortcuts הופך List ריקה ל-Text ריק, מה שגורם לשגיאת "couldn't convert from Text to Dictionary". העסקאות הישנות נשארות ב-Data Jar אבל הווידג'ט מסנן לפי חודש נוכחי בלבד, וקובץ expenses.json מתאפס ע"י RESET למטה.
 
-   17. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
-   18. **Set Variable** → Variable Name: `exportCount`
-   19. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
-   20. **Set Variable** → Variable Name: `exportTotal`
+   15. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `2`
+   16. **Set Variable** → Variable Name: `exportCount`
+   17. **Get Item from List** → List: `resultParts` → Get: **Item at Index** → Index: `3`
+   18. **Set Variable** → Variable Name: `exportTotal`
 
-   21. **Text** → הרכב: `RESET|0`
-   22. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
-   23. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון expenses.json — איפוס סה"כ ומחיקת עסקאות)
+   19. **Text** → הרכב: `RESET|0`
+   20. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
+   21. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText` (עדכון expenses.json — איפוס סה"כ ומחיקת עסקאות)
 
-   24. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
+   22. **Show Notification** → Title: `📁 גיבוי נשמר` → Body: הרכב: [**exportCount**] → ` עסקאות | ₪` → [**exportTotal**]
 
-25. **End If**
+23. **End If**
 
 ---
 
@@ -1010,16 +1009,17 @@ Set [___] to [___] in [___]
 
 1. **Show Alert** → Title: `⚠️ אזהרה` → Message: `פעולה זו תמחק את כל הנתונים. בלתי הפיכה!` → Show Cancel: **ON**
 
-2. **List** → חפש והוסף פעולת **List** — **אל תוסיף פריטים**, השאר ריק
-3. **Data Jar** → **Set Value** → Key Path: `expenses/transactions` → Value: לחץ → בחר את **List** (התוצאה מפעולה 2)
+2. **Data Jar** → **Delete Value** → Key Path: `expenses`
 
-4. **Number** → הקלד `0`
-5. **Data Jar** → **Set Value** → Key Path: `expenses/monthlyTotal` → Value: לחץ → בחר את **Number** (התוצאה מפעולה 4)
+3. **Data Jar** → **Delete Value** → Key Path: `merchantMap`
 
-6. **Dictionary** → חפש והוסף פעולת **Dictionary** — **אל תוסיף שדות**, השאר ריק
-7. **Data Jar** → **Set Value** → Key Path: `merchantMap` → Value: לחץ → בחר את **Dictionary** (התוצאה מפעולה 6)
+   > פעולה זו מוחקת את כל מפתח expenses ו-merchantMap. בפעם הבאה שתופעל עסקה, הם ייווצרו מחדש אוטומטית.
 
-8. **Show Notification** → Title: `🗑️ כל הנתונים נמחקו`
+4. **Text** → הרכב: `RESET|0`
+5. **Set Variable** → Variable Name: `resetText` → Value: תוצאת Text
+6. **Scriptable** → **Run Script** → `ExpenseSync` → Text: `resetText`
+
+7. **Show Notification** → Title: `🗑️ כל הנתונים נמחקו`
 
 ---
 
