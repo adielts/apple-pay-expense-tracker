@@ -1,14 +1,14 @@
-﻿// ============================================================
-// ðŸ’³ Expense Tracker Widget for Scriptable
 // ============================================================
-// ×’×¨×¡×”: 1.0
-// ×ª×™××•×¨: ×•×™×“×’'×˜ ×ž×¡×š ×”×‘×™×ª ×œ×ž×¢×§×‘ ×”×•×¦××•×ª ××©×¨××™
-// ×“×¨×™×©×•×ª: Data Jar ×ž×•×ª×§×Ÿ ×¢× ×ž×‘× ×” × ×ª×•× ×™× ×ž×•×’×“×¨
+// 💳 Expense Tracker Widget for Scriptable
+// ============================================================
+// גרסה: 1.0
+// תיאור: וידג'ט מסך הבית למעקב הוצאות אשראי
+// דרישות: Data Jar מותקן עם מבנה נתונים מוגדר
 // ============================================================
 
-// â”€â”€â”€ ×”×’×“×¨×•×ª â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── הגדרות ───────────────────────────────────────────────
 const CONFIG = {
-  // ×¦×‘×¢×™×
+  // צבעים
   colors: {
     background: new Color("#1C1C1E"),
     cardBg: new Color("#2C2C2E"),
@@ -21,17 +21,17 @@ const CONFIG = {
     separator: new Color("#3A3A3C"),
     cardIndicator: new Color("#007AFF"),
   },
-  // ×ª×§×¦×™×‘ ×—×•×“×©×™ (×©× ×” ×œ×¤×™ ×”×¦×•×¨×š)
+  // תקציב חודשי (שנה לפי הצורך)
   monthlyBudget: 5000,
-  // ×ž×¡×¤×¨ ×§×˜×’×•×¨×™×•×ª ×ž×•×‘×™×œ×•×ª ×œ×”×¦×’×” ×‘×•×•×™×“×’'×˜ ×‘×™× ×•× ×™
+  // מספר קטגוריות מובילות להצגה בווידג'ט בינוני
   topCategoriesCount: 4,
 };
 
-// â”€â”€â”€ ×§×¨×™××ª × ×ª×•× ×™× â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── קריאת נתונים ───────────────────────────────────────
 async function loadExpensesFromDataJar() {
-  // ×§×¨×™××” ×ž×§×•×‘×¥ JSON ×©× ×•×¦×¨ ×¢×œ ×™×“×™ ExpenseSync
-  // ×”×§×•×‘×¥ ×ž×ª×¢×“×›×Ÿ ××•×˜×•×ž×˜×™×ª ××—×¨×™ ×›×œ ×¢×¡×§×” (×“×¨×š Shortcut)
-  // ××• ×™×“× ×™×ª ×“×¨×š "×”×•×¦××•×ª ×©×œ×™" â†’ "ðŸ”„ ×¡× ×›×¨×•×Ÿ Widget"
+  // קריאה מקובץ JSON שנוצר על ידי ExpenseSync
+  // הקובץ מתעדכן אוטומטית אחרי כל עסקה (דרך Shortcut)
+  // או ידנית דרך "הוצאות שלי" → "🔄 סנכרון Widget"
   try {
     const fm = FileManager.iCloud();
     const dir = fm.documentsDirectory();
@@ -55,23 +55,23 @@ async function loadExpensesFromDataJar() {
     console.error("Error loading expenses.json: " + e);
   }
 
-  // ×”×—×–×¨×ª ×ž×‘× ×” ×¨×™×§ ×× ××™×Ÿ × ×ª×•× ×™×
+  // החזרת מבנה ריק אם אין נתונים
   return { transactions: [], monthlyTotal: 0 };
 }
 
-// â”€â”€â”€ ×¤×¢× ×•×— ×ª××¨×™×š (×ª×•×ž×š ×‘-dd-MM-yyyy ×•×’× yyyy-MM-dd) â”€â”€â”€â”€â”€â”€
+// ─── פענוח תאריך (תומך ב-dd-MM-yyyy וגם yyyy-MM-dd) ──────
 function parseDate(dateStr) {
   if (!dateStr) return new Date(NaN);
-  // dd-MM-yyyy (×œ×ž×©×œ 26-02-2026)
+  // dd-MM-yyyy (למשל 26-02-2026)
   const ddmmyyyy = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
   if (ddmmyyyy) {
     return new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]));
   }
-  // yyyy-MM-dd (ISO â€” ×œ×ž×©×œ 2026-02-26)
+  // yyyy-MM-dd (ISO — למשל 2026-02-26)
   return new Date(dateStr);
 }
 
-// â”€â”€â”€ ×¤×™×œ×˜×¨ ×¢×¡×§××•×ª ×œ×—×•×“×© ×”× ×•×›×—×™ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── פילטר עסקאות לחודש הנוכחי ────────────────────────────
 function filterCurrentMonth(transactions) {
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -83,36 +83,36 @@ function filterCurrentMonth(transactions) {
   });
 }
 
-// â”€â”€â”€ ×—×™×©×•×‘ ×¡×˜×˜×™×¡×˜×™×§×•×ª â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── חישוב סטטיסטיקות ─────────────────────────────────────
 function calculateStats(transactions, data) {
   const monthlyTransactions = filterCurrentMonth(transactions);
 
-  // ×¡×”"×› ×”×—×•×“×© â€” ×ž×—×©×‘ ××š ×•×¨×§ ×ž×¢×¡×§××•×ª ×”×—×•×“×© ×”× ×•×›×—×™
+  // סה"כ החודש — מחשב אך ורק מעסקאות החודש הנוכחי
   const totalSpent = monthlyTransactions.reduce(
     (sum, t) => sum + (parseFloat(t.amount) || 0),
     0
   );
 
-  // ×¤×™×¨×•×˜ ×œ×¤×™ ×§×˜×’×•×¨×™×”
+  // פירוט לפי קטגוריה
   const byCategory = {};
   monthlyTransactions.forEach((t) => {
-    const cat = t.category || "âœ¨ ××—×¨";
+    const cat = t.category || "✨ אחר";
     byCategory[cat] = (byCategory[cat] || 0) + (parseFloat(t.amount) || 0);
   });
 
-  // ×ž×™×•×Ÿ ×§×˜×’×•×¨×™×•×ª ×ž×”×’×‘×•×”×” ×œ× ×ž×•×›×”
+  // מיון קטגוריות מהגבוהה לנמוכה
   const sortedCategories = Object.entries(byCategory)
     .sort((a, b) => b[1] - a[1])
     .slice(0, CONFIG.topCategoriesCount);
 
-  // ×¤×™×¨×•×˜ ×œ×¤×™ ×›×¨×˜×™×¡
+  // פירוט לפי כרטיס
   const byCard = {};
   monthlyTransactions.forEach((t) => {
     const card = t.card || "????";
     byCard[card] = (byCard[card] || 0) + (parseFloat(t.amount) || 0);
   });
 
-  // ×¢×¡×§×” ××—×¨×•× ×”
+  // עסקה אחרונה
   const lastTransaction =
     monthlyTransactions.length > 0
       ? monthlyTransactions[monthlyTransactions.length - 1]
@@ -127,40 +127,40 @@ function calculateStats(transactions, data) {
   };
 }
 
-// â”€â”€â”€ ×¤×•×¨×ž×˜ ×ž×¡×¤×¨ ×œ×©"×— â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── פורמט מספר לש"ח ──────────────────────────────────────
 function formatCurrency(amount) {
-  return "â‚ª" + amount.toLocaleString("he-IL", {
+  return "₪" + amount.toLocaleString("he-IL", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
 }
 
 function formatCurrencyDetailed(amount) {
-  return "â‚ª" + amount.toLocaleString("he-IL", {
+  return "₪" + amount.toLocaleString("he-IL", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
-// â”€â”€â”€ ×¦×‘×¢ ×¡×›×•× ×œ×¤×™ ×ª×§×¦×™×‘ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── צבע סכום לפי תקציב ──────────────────────────────────
 function getAmountColor(spent) {
   const ratio = spent / CONFIG.monthlyBudget;
-  if (ratio < 0.7) return CONFIG.colors.amountText;      // ×™×¨×•×§
-  if (ratio < 0.9) return CONFIG.colors.amountWarning;    // ×›×ª×•×
-  return CONFIG.colors.amountDanger;                       // ××“×•×
+  if (ratio < 0.7) return CONFIG.colors.amountText;      // ירוק
+  if (ratio < 0.9) return CONFIG.colors.amountWarning;    // כתום
+  return CONFIG.colors.amountDanger;                       // אדום
 }
 
-// â”€â”€â”€ ×©× ×—×•×“×© ×‘×¢×‘×¨×™×ª â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── שם חודש בעברית ───────────────────────────────────────
 function getHebrewMonth() {
   const months = [
-    "×™× ×•××¨", "×¤×‘×¨×•××¨", "×ž×¨×¡", "××¤×¨×™×œ", "×ž××™", "×™×•× ×™",
-    "×™×•×œ×™", "××•×’×•×¡×˜", "×¡×¤×˜×ž×‘×¨", "××•×§×˜×•×‘×¨", "× ×•×‘×ž×‘×¨", "×“×¦×ž×‘×¨",
+    "ינואר", "פברואר", "מרס", "אפריל", "מאי", "יוני",
+    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
   ];
   const now = new Date();
   return months[now.getMonth()] + " " + now.getFullYear();
 }
 
-// â”€â”€â”€ Progress Bar (RTL â€” ×ž×ª×ž×œ× ×ž×™×ž×™×Ÿ ×œ×©×ž××œ) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Progress Bar (RTL — מתמלא מימין לשמאל) ──────────────
 function addProgressBar(stack, spent, budget, width) {
   const ratio = Math.min(spent / budget, 1.0);
   const barHeight = 6;
@@ -171,10 +171,10 @@ function addProgressBar(stack, spent, budget, width) {
   barStack.size = new Size(width, barHeight);
   barStack.backgroundColor = CONFIG.colors.separator;
 
-  // ×ž×™× ×™×ž×•× 6px ×›×“×™ ×©×”×‘×¨ ×™×”×™×” × ×¨××” ×’× ×‘×¡×›×•×ž×™× × ×ž×•×›×™×
+  // מינימום 6px כדי שהבר יהיה נראה גם בסכומים נמוכים
   const filledWidth = spent > 0 ? Math.max(ratio * width, 6) : 0;
 
-  // Spacer ×“×•×—×£ ××ª ×”×‘×¨ ×™×ž×™× ×” (RTL)
+  // Spacer דוחף את הבר ימינה (RTL)
   const emptyWidth = width - filledWidth;
   if (emptyWidth > 0) {
     const spacer = barStack.addStack();
@@ -187,31 +187,31 @@ function addProgressBar(stack, spent, budget, width) {
   filledBar.backgroundColor = getAmountColor(spent);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// SMALL WIDGET (2Ã—2)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════
+// SMALL WIDGET (2×2)
+// ════════════════════════════════════════════════════════════
 function createSmallWidget(stats) {
   const widget = new ListWidget();
   widget.backgroundColor = CONFIG.colors.background;
   widget.setPadding(16, 16, 16, 16);
 
-  // ×›×•×ª×¨×ª
+  // כותרת
   const titleStack = widget.addStack();
   titleStack.layoutHorizontally();
   titleStack.centerAlignContent();
 
-  const icon = titleStack.addText("ðŸ’³");
+  const icon = titleStack.addText("💳");
   icon.font = Font.systemFont(14);
 
   titleStack.addSpacer(4);
 
-  const title = titleStack.addText("×”×•×¦××•×ª ×”×—×•×“×©");
+  const title = titleStack.addText("הוצאות החודש");
   title.font = Font.boldSystemFont(13);
   title.textColor = CONFIG.colors.subtitleText;
 
   widget.addSpacer(8);
 
-  // ×¡×›×•× ×¨××©×™
+  // סכום ראשי
   const amountText = widget.addText(formatCurrency(stats.totalSpent));
   amountText.font = Font.boldSystemFont(28);
   amountText.textColor = getAmountColor(stats.totalSpent);
@@ -224,16 +224,16 @@ function createSmallWidget(stats) {
 
   widget.addSpacer(4);
 
-  // ×ª×§×¦×™×‘
+  // תקציב
   const budgetText = widget.addText(
-    `×ž×ª×•×š ${formatCurrency(CONFIG.monthlyBudget)}`
+    `מתוך ${formatCurrency(CONFIG.monthlyBudget)}`
   );
   budgetText.font = Font.systemFont(11);
   budgetText.textColor = CONFIG.colors.subtitleText;
 
   widget.addSpacer(4);
 
-  // ×¢×¡×§×” ××—×¨×•× ×”
+  // עסקה אחרונה
   if (stats.lastTransaction) {
     const lastLine = widget.addText(
       `${stats.lastTransaction.merchant} ${formatCurrency(parseFloat(stats.lastTransaction.amount))}`
@@ -246,15 +246,15 @@ function createSmallWidget(stats) {
   return widget;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// MEDIUM WIDGET (4Ã—2)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════
+// MEDIUM WIDGET (4×2)
+// ════════════════════════════════════════════════════════════
 function createMediumWidget(stats) {
   const widget = new ListWidget();
   widget.backgroundColor = CONFIG.colors.background;
   widget.setPadding(14, 16, 14, 16);
 
-  // â”€â”€ ×©×•×¨×” ×¢×œ×™×•× ×”: ×›×•×ª×¨×ª + ×¡×›×•× â”€â”€
+  // ── שורה עליונה: כותרת + סכום ──
   const headerStack = widget.addStack();
   headerStack.layoutHorizontally();
   headerStack.centerAlignContent();
@@ -263,7 +263,7 @@ function createMediumWidget(stats) {
   titleLeft.layoutHorizontally();
   titleLeft.centerAlignContent();
 
-  const icon = titleLeft.addText("ðŸ’³");
+  const icon = titleLeft.addText("💳");
   icon.font = Font.systemFont(14);
   titleLeft.addSpacer(4);
 
@@ -287,12 +287,12 @@ function createMediumWidget(stats) {
 
   widget.addSpacer(2);
 
-  // ×ª×§×¦×™×‘ ×©×•×¨×”
+  // תקציב שורה
   const budgetRow = widget.addStack();
   budgetRow.layoutHorizontally();
 
   const countText = budgetRow.addText(
-    `${stats.transactionCount} ×¢×¡×§××•×ª`
+    `${stats.transactionCount} עסקאות`
   );
   countText.font = Font.systemFont(10);
   countText.textColor = CONFIG.colors.subtitleText;
@@ -300,21 +300,21 @@ function createMediumWidget(stats) {
   budgetRow.addSpacer();
 
   const budgetLabel = budgetRow.addText(
-    `×ª×§×¦×™×‘: ${formatCurrency(CONFIG.monthlyBudget)}`
+    `תקציב: ${formatCurrency(CONFIG.monthlyBudget)}`
   );
   budgetLabel.font = Font.systemFont(10);
   budgetLabel.textColor = CONFIG.colors.subtitleText;
 
   widget.addSpacer(6);
 
-  // â”€â”€ ×§×• ×ž×¤×¨×™×“ â”€â”€
+  // ── קו מפריד ──
   const sep = widget.addStack();
   sep.size = new Size(0, 1);
   sep.backgroundColor = CONFIG.colors.separator;
 
   widget.addSpacer(6);
 
-  // â”€â”€ ×©×•×¨×ª ×§×˜×’×•×¨×™×•×ª â”€â”€
+  // ── שורת קטגוריות ──
   const catStack = widget.addStack();
   catStack.layoutHorizontally();
 
@@ -326,7 +326,7 @@ function createMediumWidget(stats) {
       catItem.layoutVertically();
       catItem.centerAlignContent();
 
-      // ×©× ×§×˜×’×•×¨×™×” ×ž×œ× (××™×ž×•×’'×™ + ×©×)
+      // שם קטגוריה מלא (אימוג'י + שם)
       const catLabel = catItem.addText(cat[0]);
       catLabel.font = Font.systemFont(12);
       catLabel.textColor = CONFIG.colors.titleText;
@@ -339,7 +339,7 @@ function createMediumWidget(stats) {
       amtText.centerAlignText();
     });
   } else {
-    const noData = catStack.addText("××™×Ÿ ×¢×¡×§××•×ª ×¢×“×™×™×Ÿ");
+    const noData = catStack.addText("אין עסקאות עדיין");
     noData.font = Font.systemFont(12);
     noData.textColor = CONFIG.colors.subtitleText;
   }
@@ -348,19 +348,19 @@ function createMediumWidget(stats) {
 
   widget.addSpacer(6);
 
-  // â”€â”€ ×©×•×¨×ª ×›×¨×˜×™×¡×™× + ×¢×¡×§×” ××—×¨×•× ×” â”€â”€
+  // ── שורת כרטיסים + עסקה אחרונה ──
   const bottomStack = widget.addStack();
   bottomStack.layoutHorizontally();
   bottomStack.centerAlignContent();
 
-  // ×›×¨×˜×™×¡×™×
+  // כרטיסים
   const cards = Object.entries(stats.byCard);
   if (cards.length > 0) {
     const cardsText = cards
       .map(([card, amount]) => `****${card}: ${formatCurrency(amount)}`)
       .join("  |  ");
 
-    const cardLabel = bottomStack.addText("ðŸ’³ " + cardsText);
+    const cardLabel = bottomStack.addText("💳 " + cardsText);
     cardLabel.font = Font.systemFont(10);
     cardLabel.textColor = CONFIG.colors.cardIndicator;
     cardLabel.lineLimit = 1;
@@ -368,10 +368,10 @@ function createMediumWidget(stats) {
 
   bottomStack.addSpacer();
 
-  // ×¢×¡×§×” ××—×¨×•× ×”
+  // עסקה אחרונה
   if (stats.lastTransaction) {
     const lastText = bottomStack.addText(
-      `××—×¨×•× ×”: ${stats.lastTransaction.merchant} ${formatCurrency(parseFloat(stats.lastTransaction.amount))}`
+      `אחרונה: ${stats.lastTransaction.merchant} ${formatCurrency(parseFloat(stats.lastTransaction.amount))}`
     );
     lastText.font = Font.systemFont(10);
     lastText.textColor = CONFIG.colors.subtitleText;
@@ -381,24 +381,24 @@ function createMediumWidget(stats) {
   return widget;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// LARGE WIDGET (4Ã—4)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════
+// LARGE WIDGET (4×4)
+// ════════════════════════════════════════════════════════════
 function createLargeWidget(stats, transactions) {
   const widget = new ListWidget();
   widget.backgroundColor = CONFIG.colors.background;
   widget.setPadding(16, 16, 16, 16);
 
-  // â”€â”€ ×›×•×ª×¨×ª â”€â”€
+  // ── כותרת ──
   const headerStack = widget.addStack();
   headerStack.layoutHorizontally();
   headerStack.centerAlignContent();
 
-  const icon = headerStack.addText("ðŸ’³");
+  const icon = headerStack.addText("💳");
   icon.font = Font.systemFont(18);
   headerStack.addSpacer(6);
 
-  const title = headerStack.addText("×”×•×¦××•×ª " + getHebrewMonth());
+  const title = headerStack.addText("הוצאות " + getHebrewMonth());
   title.font = Font.boldSystemFont(18);
   title.textColor = CONFIG.colors.titleText;
 
@@ -424,7 +424,7 @@ function createLargeWidget(stats, transactions) {
     (stats.totalSpent / CONFIG.monthlyBudget) * 100
   );
   const pctText = budgetLine.addText(
-    `${pctUsed}% ×ž×”×ª×§×¦×™×‘ (${formatCurrency(CONFIG.monthlyBudget)})`
+    `${pctUsed}% מהתקציב (${formatCurrency(CONFIG.monthlyBudget)})`
   );
   pctText.font = Font.systemFont(11);
   pctText.textColor = CONFIG.colors.subtitleText;
@@ -432,15 +432,15 @@ function createLargeWidget(stats, transactions) {
   budgetLine.addSpacer();
 
   const countLabel = budgetLine.addText(
-    `${stats.transactionCount} ×¢×¡×§××•×ª`
+    `${stats.transactionCount} עסקאות`
   );
   countLabel.font = Font.systemFont(11);
   countLabel.textColor = CONFIG.colors.subtitleText;
 
   widget.addSpacer(8);
 
-  // â”€â”€ ×§×˜×’×•×¨×™×•×ª â”€â”€
-  const catTitle = widget.addText("ðŸ“‚ ×œ×¤×™ ×§×˜×’×•×¨×™×”");
+  // ── קטגוריות ──
+  const catTitle = widget.addText("📂 לפי קטגוריה");
   catTitle.font = Font.boldSystemFont(13);
   catTitle.textColor = CONFIG.colors.titleText;
 
@@ -461,7 +461,7 @@ function createLargeWidget(stats, transactions) {
     const catAmount = row.addText(
       `${formatCurrency(cat[1])}  (${pct}%)`
     );
-    catAmount.font = Font.monospaceSystemFont(12);
+    catAmount.font = Font.systemFont(12);
     catAmount.textColor = CONFIG.colors.subtitleText;
 
     widget.addSpacer(2);
@@ -469,10 +469,10 @@ function createLargeWidget(stats, transactions) {
 
   widget.addSpacer(6);
 
-  // â”€â”€ ×›×¨×˜×™×¡×™× â”€â”€
+  // ── כרטיסים ──
   const cards = Object.entries(stats.byCard);
   if (cards.length > 0) {
-    const cardTitle = widget.addText("ðŸ’³ ×œ×¤×™ ×›×¨×˜×™×¡");
+    const cardTitle = widget.addText("💳 לפי כרטיס");
     cardTitle.font = Font.boldSystemFont(13);
     cardTitle.textColor = CONFIG.colors.titleText;
 
@@ -484,13 +484,13 @@ function createLargeWidget(stats, transactions) {
       row.centerAlignContent();
 
       const cardLabel = row.addText(`****${card}`);
-      cardLabel.font = Font.monospaceSystemFont(12);
+      cardLabel.font = Font.systemFont(12);
       cardLabel.textColor = CONFIG.colors.cardIndicator;
 
       row.addSpacer();
 
       const cardAmt = row.addText(formatCurrency(amount));
-      cardAmt.font = Font.monospaceSystemFont(12);
+      cardAmt.font = Font.systemFont(12);
       cardAmt.textColor = CONFIG.colors.subtitleText;
 
       widget.addSpacer(2);
@@ -499,7 +499,7 @@ function createLargeWidget(stats, transactions) {
 
   widget.addSpacer(6);
 
-  // â”€â”€ ×¢×¡×§××•×ª ××—×¨×•× ×•×ª â”€â”€
+  // ── עסקאות אחרונות ──
   const monthlyTransactions = filterCurrentMonth(transactions);
   const recentTransactions = monthlyTransactions.slice(-5).reverse();
 
@@ -510,7 +510,7 @@ function createLargeWidget(stats, transactions) {
 
     widget.addSpacer(4);
 
-    const recentTitle = widget.addText("ðŸ“‹ ×¢×¡×§××•×ª ××—×¨×•× ×•×ª");
+    const recentTitle = widget.addText("📋 עסקאות אחרונות");
     recentTitle.font = Font.boldSystemFont(13);
     recentTitle.textColor = CONFIG.colors.titleText;
 
@@ -523,7 +523,7 @@ function createLargeWidget(stats, transactions) {
 
       const dateStr = t.date ? t.date.substring(5).replace("-", "/") : "";
       const dateLabel = row.addText(dateStr);
-      dateLabel.font = Font.monospaceSystemFont(10);
+      dateLabel.font = Font.systemFont(10);
       dateLabel.textColor = CONFIG.colors.subtitleText;
 
       row.addSpacer(6);
@@ -538,19 +538,19 @@ function createLargeWidget(stats, transactions) {
       const amtLabel = row.addText(
         formatCurrency(parseFloat(t.amount) || 0)
       );
-      amtLabel.font = Font.monospaceSystemFont(11);
+      amtLabel.font = Font.systemFont(11);
       amtLabel.textColor = CONFIG.colors.subtitleText;
 
       row.addSpacer(4);
 
-      const emoji = (t.category || "").split(" ")[0] || "âœ¨";
+      const emoji = (t.category || "").split(" ")[0] || "✨";
       const catEmoji = row.addText(emoji);
       catEmoji.font = Font.systemFont(11);
 
       row.addSpacer(4);
 
       const cardNum = row.addText(`****${t.card || "????"}`);
-      cardNum.font = Font.monospaceSystemFont(9);
+      cardNum.font = Font.systemFont(9);
       cardNum.textColor = CONFIG.colors.cardIndicator;
 
       widget.addSpacer(1);
@@ -560,9 +560,9 @@ function createLargeWidget(stats, transactions) {
   return widget;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════
 // MAIN
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════
 async function main() {
   const data = await loadExpensesFromDataJar();
   const transactions = data.transactions || [];
@@ -586,22 +586,22 @@ async function main() {
       widget = createMediumWidget(stats);
   }
 
-  // ×œ×—×™×¦×” ×¢×œ Widget â†’ ×ž×¨×¢× ×Ÿ ××ª ×”Widget (×ž×¨×™×¥ ××ª ×”×¡×§×¨×™×¤×˜ ×ž×—×“×©)
-  // ×× ×¨×•×¦×™× ×œ×¤×ª×•×— Shortcut ×‘×ž×§×•×, ×©× ×” ×‘-Scriptable:
-  // â‹¯ â†’ Widget â†’ When Interacting â†’ Open URL â†’ shortcuts://run-shortcut?name=×”×•×¦××•×ª%20×©×œ×™
-  // widget.url = "shortcuts://run-shortcut?name=" + encodeURIComponent("×”×•×¦××•×ª ×©×œ×™");
+  // לחיצה על Widget → מרענן את הWidget (מריץ את הסקריפט מחדש)
+  // אם רוצים לפתוח Shortcut במקום, שנה ב-Scriptable:
+  // ⋯ → Widget → When Interacting → Open URL → shortcuts://run-shortcut?name=הוצאות%20שלי
+  // widget.url = "shortcuts://run-shortcut?name=" + encodeURIComponent("הוצאות שלי");
 
   if (config.runsInWidget) {
     Script.setWidget(widget);
   } else {
-    // ×”×¦×’×ª ×ž×™×“×¢ ×“×™×‘××’ ×œ×¤× ×™ ×ª×¦×•×’×ª Widget
+    // הצגת מידע דיבאג לפני תצוגת Widget
     const debugMsg = [
-      "ðŸ“Š Debug Info:",
+      "📊 Debug Info:",
       "transactions total: " + transactions.length,
       "filtered (this month): " + stats.transactionCount,
-      "totalSpent: â‚ª" + stats.totalSpent,
+      "totalSpent: ₪" + stats.totalSpent,
       "categories: " + stats.sortedCategories.length,
-      "last: " + (stats.lastTransaction ? stats.lastTransaction.merchant + " â‚ª" + stats.lastTransaction.amount : "none"),
+      "last: " + (stats.lastTransaction ? stats.lastTransaction.merchant + " ₪" + stats.lastTransaction.amount : "none"),
     ].join("\n");
     
     const debugAlert = new Alert();
@@ -610,7 +610,7 @@ async function main() {
     debugAlert.addAction("Show Widget");
     await debugAlert.present();
     
-    // ×ª×¦×•×’×” ×ž×§×“×™×ž×” ×‘×”×¨×¦×” ×ž×ª×•×š Scriptable
+    // תצוגה מקדימה בהרצה מתוך Scriptable
     switch (widgetFamily) {
       case "small":
         await widget.presentSmall();
